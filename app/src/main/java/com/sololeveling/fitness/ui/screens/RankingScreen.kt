@@ -48,10 +48,17 @@ fun RankingScreen(
             containerColor = BgSecondary,
             contentColor = AccentCyan,
             indicator = { tabPositions ->
-                TabRowDefaults.SecondaryIndicator(
-                    Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                    color = AccentCyan
-                )
+                if (selectedTab < tabPositions.size) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.BottomStart)
+                            .width(tabPositions[selectedTab].width)
+                            .offset(x = tabPositions[selectedTab].left)
+                            .height(3.dp)
+                            .background(AccentCyan)
+                    )
+                }
             }
         ) {
             tabs.forEachIndexed { index, title ->

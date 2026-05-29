@@ -10,13 +10,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel principal del juego — Toda la gestión de estado aquí
+ * ViewModel principal — gestión de estado del juego.
+ * Todo local con DataStore, sin dependencias de red.
  */
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = GameRepository(application)
-
-    // ═══ ESTADO ═══
 
     private val _userProfile = MutableStateFlow(UserProfile())
     val userProfile: StateFlow<UserProfile> = _userProfile.asStateFlow()
@@ -24,6 +23,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _dailyMissions = MutableStateFlow<List<Mission>>(emptyList())
     val dailyMissions: StateFlow<List<Mission>> = _dailyMissions.asStateFlow()
 
+    // Ranking local (mock data — con Firebase vendría del server)
     private val _globalRanking = MutableStateFlow<List<RankingEntry>>(emptyList())
     val globalRanking: StateFlow<List<RankingEntry>> = _globalRanking.asStateFlow()
 
@@ -48,13 +48,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _showWelcome = MutableStateFlow(true)
     val showWelcome: StateFlow<Boolean> = _showWelcome.asStateFlow()
 
-    // ══════════════════════════════════════════
-    //  INICIALIZACIÓN
-    // ══════════════════════════════════════════
+    // Notificación de evento (snackbar/eventos UI)
+    private val _eventMessage = MutableSharedFlow<String>()
+    val eventMessage: SharedFlow<String> = _eventMessage.asSharedFlow()
 
     init {
         viewModelScope.launch {
-            // Cargar perfil local
             val profile = repository.getUserProfile()
             _userProfile.value = profile
 
@@ -67,23 +66,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ══════════════════════════════════════════
-    //  INICIO DE USUARIO
-    // ══════════════════════════════════════════
-
     fun createProfile(name: String) {
         viewModelScope.launch {
             val profile = repository.initializeUser(name)
             _userProfile.value = profile
             _showWelcome.value = false
             generateDailyMissions()
-            repository.syncProfileToFirestore(profile)
+            loadData()
         }
     }
-
-    // ══════════════════════════════════════════
-    //  CHECK DIARIO
-    // ══════════════════════════════════════════
 
     fun checkDaily() {
         viewModelScope.launch {
@@ -92,7 +83,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val profile = repository.getUserProfile()
             _userProfile.value = profile
 
-            // Verificar si hay que generar misiones nuevas
+            if (streakResult.wasReset) {
+                _eventMessage.emit("⚠️ Tu racha se ha reiniciado por inactividad")
+            }
+
             val today = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_YEAR)
             val lastDay = if (profile.lastActiveDate > 0) {
                 java.util.Calendar.getInstance().apply {
@@ -102,18 +96,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
             if (today != lastDay || _dailyMissions.value.isEmpty()) {
                 generateDailyMissions()
+                if (profile.currentStreak > 0) {
+                    _eventMessage.emit("🎯 ¡Nuevas misiones disponibles!")
+                }
             }
         }
     }
 
-    // ══════════════════════════════════════════
-    //  MISIONES
-    // ══════════════════════════════════════════
-
     private fun generateDailyMissions() {
         val profile = _userProfile.value
-        val missions = GameEngine.generateDailyMissions(profile.level, profile.stats)
-        _dailyMissions.value = missions
+        _dailyMissions.value = GameEngine.generateDailyMissions(profile.level, profile.stats)
     }
 
     fun completeMission(mission: Mission) {
@@ -121,21 +113,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val result = repository.completeMission(mission)
             _lastResult.value = result
 
-            // Actualizar perfil
             val profile = repository.getUserProfile()
             _userProfile.value = profile
 
-            // Actualizar misión en lista
             _dailyMissions.value = _dailyMissions.value.map {
                 if (it.id == mission.id) mission else it
             }
 
-            // Actualizar logros
             updateAchievements()
 
-            // Sync ranking
-            repository.updateRanking(profile)
-            repository.syncProfileToFirestore(profile)
+            if (result.levelsGained > 0) {
+                _eventMessage.emit("🎉 ¡Has subido al Nivel ${result.newLevel}!")
+            }
+
+            loadData()
         }
     }
 
@@ -147,48 +138,66 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    // ══════════════════════════════════════════
-    //  RANKING
-    // ══════════════════════════════════════════
-
-    fun loadRanking() {
+    private fun loadData() {
         viewModelScope.launch {
-            _globalRanking.value = repository.getGlobalRanking(50)
+            updateAchievements()
+            generateMockRanking()
         }
     }
 
-    fun loadFriendsRanking() {
-        viewModelScope.launch {
-            val profile = _userProfile.value
-            val friendsList = repository.getFriends(profile.id)
-            _friends.value = friendsList
+    // ═══ MOCK RANKING — hasta conectar Firebase ═══
+    private fun generateMockRanking() {
+        val profile = _userProfile.value
+        val mockUsers = listOf(
+            RankingEntry("mock1", "Kratos", 87, 245000, HunterRank.forLevel(87), 1250),
+            RankingEntry("mock2", "Sung Jin-Woo", 76, 198000, HunterRank.forLevel(76), 980),
+            RankingEntry("mock3", "Guts", 65, 156000, HunterRank.forLevel(65), 756),
+            RankingEntry("mock4", "Naruto", 54, 120000, HunterRank.forLevel(54), 540),
+            RankingEntry("mock5", "Goku", 48, 98000, HunterRank.forLevel(48), 420),
+            RankingEntry("mock6", "Eren", 42, 85000, HunterRank.forLevel(42), 350),
+            RankingEntry("mock7", "Levi", 38, 72000, HunterRank.forLevel(38), 290),
+            RankingEntry("mock8", "Kaneki", 30, 55000, HunterRank.forLevel(30), 200),
+            RankingEntry("mock9", "Saitama", 25, 42000, HunterRank.forLevel(25), 150),
+            RankingEntry("mock10", "Deku", 18, 28000, HunterRank.forLevel(18), 95),
+        )
 
-            if (friendsList.isNotEmpty()) {
-                val friendIds = friendsList.map { it.friendId }
-                _friendsRanking.value = repository.getFriendsRanking(friendIds, profile.id)
-            }
-        }
+        val me = RankingEntry(
+            userId = profile.id,
+            name = profile.name,
+            level = profile.level,
+            totalXP = profile.totalXP,
+            rank = profile.rank,
+            missionsCompleted = profile.missionsCompleted,
+            currentStreak = profile.currentStreak
+        )
+
+        val all = (mockUsers + me).sortedByDescending { it.totalXP }
+        _globalRanking.value = all
+        _friendsRanking.value = listOf(me) // Solo yo de momento
     }
 
-    // ══════════════════════════════════════════
-    //  AMIGOS
-    // ══════════════════════════════════════════
-
+    // ═══ AMIGOS (mock por ahora) ═══
     fun addFriend(code: String) {
         viewModelScope.launch {
-            val profile = _userProfile.value
-            val result = repository.addFriendByCode(code, profile)
-            result.onSuccess {
-                loadFriendsRanking()
+            if (code.isBlank()) {
+                _eventMessage.emit("⚠️ Introduce un código válido")
+                return@launch
             }
-        }
-    }
 
-    fun loadData() {
-        viewModelScope.launch {
-            loadRanking()
-            loadFriendsRanking()
+            // Mock: siempre "encuentra" un amigo aleatorio
+            val mockNames = listOf("Kratos", "Jin-Woo", "Guts", "Naruto", "Goku", "Saitama")
+            val mockName = mockNames.random()
+            val friend = Friendship(
+                userId = _userProfile.value.id,
+                friendId = "friend_${code.take(4)}",
+                friendName = mockName,
+                friendLevel = (5..80).random()
+            )
+            _friends.value = _friends.value + friend
+
             updateAchievements()
+            generateMockRanking()
+            _eventMessage.emit("✅ ¡$mockName añadido como amigo!")
         }
     }
 

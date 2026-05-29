@@ -16,25 +16,44 @@ object GameEngine {
     //  XP & NIVELES
     // ══════════════════════════════════════════
 
-    /** XP necesario para alcanzar un nivel dado (curva progresiva) */
+    /** XP total acumulado necesario para alcanzar un nivel dado (suma progresiva) */
     fun xpForLevel(level: Int): Int =
-        (level * level * 50 + level * 100).coerceAtLeast(0)
+        if (level <= 1) 0
+        else {
+            var total = 0
+            for (lvl in 2..level) {
+                total += (lvl * lvl * 50 + lvl * 100)
+            }
+            total
+        }
+
+    /** Versión optimizada sin loop */
+    fun xpForLevelFast(level: Int): Int =
+        if (level <= 1) 0
+        else {
+            // Suma de i²*50 + i*100 desde i=2 hasta level
+            // = 50*sum(i²) + 100*sum(i) desde 2..level
+            val n = level.toLong()
+            val sumI = (n * (n + 1) / 2) - 1          // sum(2..n) = sum(1..n) - 1
+            val sumI2 = (n * (n + 1) * (2 * n + 1) / 6) - 1  // sum(2..i²) = sum(1..n²) - 1
+            (50 * sumI2 + 100 * sumI).toInt()
+        }
 
     /** Calcula el nivel actual dado el XP total */
     fun levelFromTotalXP(totalXP: Int): Int {
         if (totalXP <= 0) return 1
+        // Buscar el máximo nivel donde xpForLevelFast(level) <= totalXP
         var level = 1
-        while (xpForLevel(level + 1) <= totalXP) {
+        while (xpForLevelFast(level + 1) <= totalXP) {
             level++
         }
         return level
     }
 
-    /** XP restante para el siguiente nivel */
-    fun xpRemainingForNextLevel(level: Int, currentXPInLevel: Int): Int {
-        val needed = xpForLevel(level)
-        val prev = xpForLevel(level - 1)
-        return (needed - prev - currentXPInLevel).coerceAtLeast(0)
+    /** XP en el nivel actual (resto después de restar nivel previo) */
+    fun xpInCurrentLevel(totalXP: Int, level: Int): Int {
+        val accumulatedForPrevLevel = xpForLevelFast(level - 1)
+        return (totalXP - accumulatedForPrevLevel).coerceAtLeast(0)
     }
 
     // ══════════════════════════════════════════

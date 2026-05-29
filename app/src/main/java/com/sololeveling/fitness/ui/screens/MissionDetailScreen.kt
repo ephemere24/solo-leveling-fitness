@@ -1,7 +1,11 @@
 package com.sololeveling.fitness.ui.screens
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -10,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -171,7 +176,7 @@ fun MissionDetailScreen(
                     FilledIconButton(
                         onClick = { if (currentCount > 0) currentCount-- },
                         modifier = Modifier.size(64.dp),
-                        colors = ButtonDefaults.filledIconButtonColors(
+                        colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = AccentRed.copy(alpha = 0.2f)
                         )
                     ) {
@@ -184,7 +189,7 @@ fun MissionDetailScreen(
                         modifier = Modifier
                             .size(80.dp)
                             .scale(pulseScale),
-                        colors = ButtonDefaults.filledIconButtonColors(
+                        colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = AccentCyan
                         )
                     ) {
@@ -288,10 +293,7 @@ fun CelebrationOverlay(xp: Int, onDismiss: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.animateEnterExit(
-                enter = fadeIn(tween(300)) + scaleIn(tween(500, easing = EaseOutBack))
-            )
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("⚔️", fontSize = 72.sp)
             Spacer(modifier = Modifier.height(16.dp))

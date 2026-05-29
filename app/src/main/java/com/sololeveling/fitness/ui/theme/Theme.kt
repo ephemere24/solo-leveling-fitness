@@ -40,8 +40,12 @@ val StatusActive = Color(0xFF39FF14)
 val StatusWarning = Color(0xFFF59E0B)
 val StatusDanger = Color(0xFFEF4444)
 
+val OverlayDark = Color(0xCC000000)
+val GlowCyan = Color(0x3300D4FF)
+val GlowPurple = Color(0x337B2FBE)
+
 // ═══ TIPOGRAFÍA ═══
-val DisplayFont = FontFamily.Default  // Cambiar a Orbit Rajdhani si se añade el font
+val DisplayFont = FontFamily.Default
 
 val AppTypography = Typography(
     displayLarge = TextStyle(
@@ -111,9 +115,6 @@ private val SoloLevelingColorScheme = darkColorScheme(
     onError = TextPrimary,
     outline = TextTertiary,
     outlineVariant = BgTertiary,
-    surfaceContainer = BgCard,
-    surfaceContainerHigh = BgSecondary,
-    surfaceContainerHighest = BgTertiary,
 )
 
 @Composable

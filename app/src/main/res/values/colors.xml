@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- System UI -->
+    <!-- System UI (required by Material) -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -18,8 +18,8 @@
     <color name="accent_cyan">#FF00D4FF</color>
     <color name="accent_gold">#FFFFD700</color>
     <color name="accent_red">#FFFF3333</color>
-    <color name="accent_green">#xFF39FF14</color>
-    <color name="accent_orange">#xFFFF6B00</color>
+    <color name="accent_green">#FF39FF14</color>
+    <color name="accent_orange">#FFFF6B00</color>
 
     <!-- Text -->
     <color name="text_primary">#FFFFFFFF</color>
@@ -38,11 +38,11 @@
 
     <!-- Level Bar -->
     <color name="xp_bar_bg">#FF2A2A3A</color>
-    <color name="xp_bar_fill">>#FF00D4FF</color>
+    <color name="xp_bar_fill">#FF00D4FF</color>
 
     <!-- Status -->
-    <color name="status_active">#xFF39FF14</color>
-    <color name="status_warning">#FFFFF59E0B</color>
+    <color name="status_active">#FF39FF14</color>
+    <color name="status_warning">#FFF59E0B</color>
     <color name="status_danger">#FFEF4444</color>
 
     <!-- Overlays -->

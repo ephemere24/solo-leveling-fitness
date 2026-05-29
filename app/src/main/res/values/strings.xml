@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Solo Leveling Fitness</string>
-    <string name="app_tagline=">Train like a Shadow Monarch</string>
+    <string name="app_tagline">Train like a Shadow Monarch</string>
 
     <!-- Navigation -->
     <string name="nav_home">Inicio</string>

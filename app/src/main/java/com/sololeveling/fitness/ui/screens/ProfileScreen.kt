@@ -1,8 +1,8 @@
 package com.sololeveling.fitness.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -198,7 +198,7 @@ fun DetailedStatsCard(stats: PlayerStats) {
             StatBar("🧘 Flexibilidad", stats.flexibility, AccentPurple, 200)
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(color = BgTertiary)
+                    Divider(color = BgTertiary)
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
@@ -305,13 +305,13 @@ fun AchievementCard(achievement: Achievement, modifier: Modifier = Modifier) {
             if (!achievement.isUnlocked) {
                 Spacer(modifier = Modifier.height(4.dp))
                 LinearProgressIndicator(
-                    progress = { achievement.progressPercent },
+                    progress = achievement.progressPercent,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
                         .clip(RoundedCornerShape(2.dp)),
                     color = AccentCyan,
-                    trackColor = XpBarBg,
+                    trackColor = XpBarBg
                 )
                 Text(
                     "${achievement.currentProgress}/${achievement.requirement}",
@@ -339,7 +339,7 @@ fun SettingsSection(onLogout: () -> Unit) {
             SettingItem("📤 Compartir perfil", "Invita a amigos") {}
 
             Spacer(modifier = Modifier.height(8.dp))
-            Divider(color = BgTertiary)
+                    Divider(color = BgTertiary)
             Spacer(modifier = Modifier.height(8.dp))
 
             TextButton(

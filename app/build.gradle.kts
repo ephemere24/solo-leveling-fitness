@@ -1,15 +1,12 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.google.gms.google-services")
-    id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "com.sololeveling.fitness"
     compileSdk = 34
     buildToolsVersion = "34.0.0"
-    ndkVersion = "25.2.9519653"
 
     defaultConfig {
         applicationId = "com.sololeveling.fitness"
@@ -86,32 +83,11 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.6")
 
-    // Room (local DB for offline-first)
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
-
-    // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-storage-ktx")
-
-    // Firebase UI Auth
-    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
-
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-    // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-
-    // DataStore (preferences)
+    // DataStore (preferences locales)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-
-    // Charts (MPAndroidChart for stats)
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")

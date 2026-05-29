@@ -4,19 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.sololeveling.fitness.ui.screens.*
-import com.sololeveling.fitness.ui.theme.SoloLevelingTheme
+import com.sololeveling.fitness.ui.theme.*
 import com.sololeveling.fitness.viewmodel.GameViewModel
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SoloLevelingTheme {
-                SoloLevelingApp()
+                SoloLevelingRootScreen()
             }
         }
     }
@@ -43,7 +43,7 @@ sealed class Screen(val route: String, val icon: ImageVector, val label: String)
 }
 
 @Composable
-fun SoloLevelingApp() {
+fun SoloLevelingRootScreen() {
     val viewModel: GameViewModel = viewModel()
     val userProfile by viewModel.userProfile.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -51,23 +51,16 @@ fun SoloLevelingApp() {
 
     if (isLoading) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp),
-            contentAlignment = androidx.compose.ui.Alignment.Center
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            // Splash simple
-            androidx.compose.material3.CircularProgressIndicator(
-                color = com.sololeveling.fitness.ui.theme.AccentCyan
-            )
+            CircularProgressIndicator(color = AccentCyan)
         }
         return
     }
 
     if (showWelcome) {
-        WelcomeScreen(
-            onStart = { name -> viewModel.createProfile(name) }
-        )
+        WelcomeScreen(onStart = { name -> viewModel.createProfile(name) })
         return
     }
 
@@ -87,12 +80,11 @@ fun MainScreen(viewModel: GameViewModel) {
 
     val bottomNavItems = listOf(Screen.Home, Screen.Ranking, Screen.Friends, Screen.Profile)
 
-    // Barra inferior personalizada
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = com.sololeveling.fitness.ui.theme.BgSecondary,
-                contentColor = com.sololeveling.fitness.ui.theme.TextPrimary
+                containerColor = BgSecondary,
+                contentColor = TextPrimary
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -111,11 +103,11 @@ fun MainScreen(viewModel: GameViewModel) {
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = com.sololeveling.fitness.ui.theme.AccentCyan,
-                            selectedTextColor = com.sololeveling.fitness.ui.theme.AccentCyan,
-                            unselectedIconColor = com.sololeveling.fitness.ui.theme.TextTertiary,
-                            unselectedTextColor = com.sololeveling.fitness.ui.theme.TextTertiary,
-                            indicatorColor = com.sololeveling.fitness.ui.theme.AccentCyan.copy(alpha = 0.1f)
+                            selectedIconColor = AccentCyan,
+                            selectedTextColor = AccentCyan,
+                            unselectedIconColor = TextTertiary,
+                            unselectedTextColor = TextTertiary,
+                            indicatorColor = AccentCyan.copy(alpha = 0.1f)
                         )
                     )
                 }
@@ -149,14 +141,14 @@ fun MainScreen(viewModel: GameViewModel) {
                     friends = friends,
                     myFriendCode = userProfile.friendCode,
                     onAddFriend = { code -> viewModel.addFriend(code) },
-                    onChallenge = { /* TODO: implementar retos */ }
+                    onChallenge = { }
                 )
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     userProfile = userProfile,
                     achievements = achievements,
-                    onLogout = { /* TODO: logout */ }
+                    onLogout = { }
                 )
             }
             composable(Screen.MissionDetail.route) { backStackEntry ->
@@ -174,8 +166,4 @@ fun MainScreen(viewModel: GameViewModel) {
             }
         }
     }
-}
-
-private val Box: @Composable (modifier: Modifier) -> Unit get() = { modifier ->
-    androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize())
 }

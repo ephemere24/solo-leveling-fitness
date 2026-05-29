@@ -1,5 +1,8 @@
 package com.sololeveling.fitness.data.model
 
+import com.sololeveling.fitness.util.GameEngine
+import com.sololeveling.fitness.util.GameEngine.xpForLevelFast
+
 import java.util.UUID
 
 /**
@@ -116,30 +119,36 @@ data class UserProfile(
     val name: String = "Cazador",
     val friendCode: String = "",
     val level: Int = 1,
-    val xp: Int = 0,
-    val totalXP: Int = 0,
+    val xp: Int = 0,                    // XP en el nivel actual
+    val totalXP: Int = 0,               // XP total acumulado
     val stats: PlayerStats = PlayerStats(),
     val missionsCompleted: Int = 0,
     val daysActive: Int = 0,
     val currentStreak: Int = 0,
     val longestStreak: Int = 0,
     val lastActiveDate: Long = 0L,
-    val streakProtection: Int = 0,       // días de gracia restantes
+    val streakProtection: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
     val premium: Boolean = false
 ) {
     val rank: HunterRank get() = HunterRank.forLevel(level)
 
-    // XP necesario para el siguiente nivel (curva progresiva)
-    val xpForNextLevel: Int get() = (level * level * 50 + level * 100)
+    // XP del siguiente nivel (cuánto necesitas ESTE nivel)
+    val xpForNextLevel: Int
+        get() {
+            val neededThisLevel = xpForLevelFast(level + 1) - xpForLevelFast(level)
+            return neededThisLevel.coerceAtLeast(100)
+        }
+
+    // XP acumulado necesario para el nivel actual
+    private val xpAtCurrentLevel: Int
+        get() = xpForLevelFast(level)
 
     val xpProgress: Float
         get() {
-            val prevXP = ((level - 1) * (level - 1) * 50 + (level - 1) * 100).coerceAtLeast(0)
-            val nextXP = xpForNextLevel
-            val needed = nextXP - prevXP
-            val have = xp - prevXP
-            return (have.toFloat() / needed).coerceIn(0f, 1f)
+            val needed = xpForNextLevel
+            val have = xp
+            return if (needed <= 0) 1f else (have.toFloat() / needed).coerceIn(0f, 1f)
         }
 
     val hunterTitle: String

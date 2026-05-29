@@ -245,6 +245,7 @@ fun XPProgressBar(profile: UserProfile) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MissionCard(
     mission: Mission,
