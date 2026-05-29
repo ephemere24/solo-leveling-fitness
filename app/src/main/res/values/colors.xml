@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- System UI -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+
+    <!-- Solo Leveling Theme - Dark & Intense -->
+    <color name="bg_primary">#FF0D0D10</color>
+    <color name="bg_secondary">#FF1A1A24</color>
+    <color name="bg_tertiary">#FF242436</color>
+    <color name="bg_card">#FF1E1E2E</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_blue">#FF4A90D9</color>
+    <color name="accent_purple">#FF7B2FBE</color>
+    <color name="accent_cyan">#FF00D4FF</color>
+    <color name="accent_gold">#FFFFD700</color>
+    <color name="accent_red">#FFFF3333</color>
+    <color name="accent_green">#xFF39FF14</color>
+    <color name="accent_orange">#xFFFF6B00</color>
+
+    <!-- Text -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFB0B0C8</color>
+    <color name="text_tertiary">#FF6A6A80</color>
+
+    <!-- Ranks -->
+    <color name="rank_e">#FF6B7280</color>
+    <color name="rank_d">#FF3B82F6</color>
+    <color name="rank_c">#FF22C55E</color>
+    <color name="rank_b">#FFF59E0B</color>
+    <color name="rank_a">#FFF97316</color>
+    <color name="rank_s">#FFEF4444</color>
+    <color name="rank_national">#FFD946EF</color>
+    <color name="rank_monarch">#FF8B5CF6</color>
+
+    <!-- Level Bar -->
+    <color name="xp_bar_bg">#FF2A2A3A</color>
+    <color name="xp_bar_fill">>#FF00D4FF</color>
+
+    <!-- Status -->
+    <color name="status_active">#xFF39FF14</color>
+    <color name="status_warning">#FFFFF59E0B</color>
+    <color name="status_danger">#FFEF4444</color>
+
+    <!-- Overlays -->
+    <color name="overlay_dark">#CC000000</color>
+    <color name="glow_cyan">#3300D4FF</color>
+    <color name="glow_purple">#337B2FBE</color>
+</resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Solo Leveling Fitness</string>
+    <string name="app_tagline=">Train like a Shadow Monarch</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_missions">Misiones</string>
+    <string name="nav_ranking">Ranking</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="nav_friends">Amigos</string>
+
+    <!-- Home -->
+    <string name="daily_missions">Misiones Diarias</string>
+    <string name="level">Nivel %d</string>
+    <string name="xp">%d XP</string>
+    <string name="streak">🔥 %d días</string>
+    <string name="complete_mission">¡Completada!</string>
+    <string name="start_mission">Iniciar Misión</string>
+
+    <!-- Mission Types -->
+    <string name="mission_pushups">Flexiones</string>
+    <string name="mission_squats">Sentadillas</string>
+    <string name="mission_pullups">Dominadas</string>
+    <string name="mission_abs">Abdominales</string>
+    <string name="mission_plank">Plancha</string>
+    <string name="mission_burpees">Burpees</string>
+    <string name="mission_running">Carrera</string>
+    <string name="mountain_climbers">Escaladores</string>
+
+    <!-- Stats -->
+    <string name="stat_strength">Fuerza</string>
+    <string name="stat_speed">Velocidad</string>
+    <string name="stat_endurance">Resistencia</string>
+    <string name="stat_flexibility">Flexibilidad</string>
+    <string name="stat_stamina">Aguante</string>
+
+    <!-- Ranking -->
+    <string name="ranking_title">🏆 Ranking Global</string>
+    <string name="ranking_friends">👥 Ranking Amigos</string>
+    <string name="position">#%d</string>
+    <string name="total_xp">%d XP Total</string>
+
+    <!-- Friends -->
+    <string name="friends_title">Amigos</string>
+    <string name="add_friend">Añadir Amigo</string>
+    <string name="friend_code">Código de Amigo</string>
+    <string name="send_challenge">⚔️ Retar</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Tu Perfil</string>
+    <string name="stats_title">Estadísticas</string>
+    <string name="achievement_title">Logros</string>
+    <string name="missions_completed">Misiones Completadas</string>
+    <string name="days_active">Días Activos</string>
+
+    <!-- Auth -->
+    <string name="login">Iniciar Sesión</string>
+    <string name="register">Registrarse</string>
+    <string name="logout">Cerrar Sesión</string>
+    <string name="guest">Invitado</string>
+
+    <!-- Notifications -->
+    <string name="mission_reminder">⏰ ¡Tus misiones diarias te esperan!</string>
+    <string name="streak_warning">⚠️ ¡No pierdas tu racha! Haz tus misiones</string>
+    <string name="level_up">🎉 ¡Has subido al Nivel %d!</string>
+
+    <!-- General -->
+    <string name="accept">Aceptar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="share">Compartir</string>
+    <string name="loading">Cargando…</string>
+    <string name="empty_state">¡Empieza tu viaje, Cazador!</string>
+</resources>

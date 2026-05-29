@@ -1,0 +1,16 @@
+# Solo Leveling Fitness
+/.idea/
+*.iml
+/local.properties
+/.gradle/
+/build/
+/app/build/
+/app/proguard-rules.pro
+*.apk
+*.aab
+/*.keystore
+.DS_Store
+/captures/
+.externalNativeBuild/
+.cxx/
+local.properties
