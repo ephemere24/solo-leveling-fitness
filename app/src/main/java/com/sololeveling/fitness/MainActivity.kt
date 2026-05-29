@@ -1,170 +1,67 @@
 package com.sololeveling.fitness
 
 import android.os.Bundle
+import android.os.Process
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.sololeveling.fitness.ui.screens.*
 import com.sololeveling.fitness.ui.theme.*
 import com.sololeveling.fitness.viewmodel.GameViewModel
+import android.content.Intent
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        var crashInfo: String? = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            enableEdgeToEdge()
+
+        // Global crash handler — never closes, shows error screen
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            val sb = StringBuilder()
+            sb.appendLine("FATAL ERROR in ${thread.name}")
+            sb.appendLine(throwable.toString())
+            for (el in throwable.stackTrace) sb.appendLine("  at $el")
+            val cause = throwable.cause
+            if (cause != null) {
+                sb.appendLine("Caused by: ${cause}")
+                for (el in cause.stackTrace.take(5)) sb.appendLine("  at $el")
+            }
+            val errorStr = sb.toString()
+            crashInfo = errorStr
+            android.util.Log.e("SLF_CRASH", errorStr)
+            try {
+                val i = Intent(this, MainActivity::class.java)
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(i)
+                Process.killProcess(Process.myPid())
+            } catch (_: Exception) {
+                Process.killProcess(Process.myPid())
+            }
         }
+
+        crashInfo = intent.getStringExtra("saved_crash")
+        val currentCrash = crashInfo
+
         setContent {
             SoloLevelingTheme {
-                SoloLevelingRootScreen()
-            }
-        }
-    }
-}
-
-sealed class Screen(val route: String, val icon: ImageVector, val label: String) {
-    data object Home : Screen("home", Icons.Default.Home, "Inicio")
-    data object Missions : Screen("missions", Icons.Default.FitnessCenter, "Misiones")
-    data object Ranking : Screen("ranking", Icons.Default.EmojiEvents, "Ranking")
-    data object Friends : Screen("friends", Icons.Default.Group, "Amigos")
-    data object Profile : Screen("profile", Icons.Default.Person, "Perfil")
-    data object MissionDetail : Screen("mission/{missionId}", Icons.Default.FitnessCenter, "Misión") {
-        fun createRoute(missionId: String) = "mission/$missionId"
-    }
-}
-
-@Composable
-fun SoloLevelingRootScreen() {
-    val viewModel: GameViewModel = viewModel()
-    val userProfile by viewModel.userProfile.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val showWelcome by viewModel.showWelcome.collectAsState()
-
-    if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = AccentCyan)
-        }
-        return
-    }
-
-    if (showWelcome) {
-        WelcomeScreen(onStart = { name -> viewModel.createProfile(name) })
-        return
-    }
-
-    MainScreen(viewModel)
-}
-
-@Composable
-fun MainScreen(viewModel: GameViewModel) {
-    val navController = rememberNavController()
-    val userProfile by viewModel.userProfile.collectAsState()
-    val dailyMissions by viewModel.dailyMissions.collectAsState()
-    val streakMultiplier by viewModel.streakMultiplier.collectAsState()
-    val globalRanking by viewModel.globalRanking.collectAsState()
-    val friendsRanking by viewModel.friendsRanking.collectAsState()
-    val friends by viewModel.friends.collectAsState()
-    val achievements by viewModel.achievements.collectAsState()
-
-    val bottomNavItems = listOf(Screen.Home, Screen.Ranking, Screen.Friends, Screen.Profile)
-
-    Scaffold(
-        bottomBar = {
-            NavigationBar(
-                containerColor = BgSecondary,
-                contentColor = TextPrimary
-            ) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
-                bottomNavItems.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) },
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = AccentCyan,
-                            selectedTextColor = AccentCyan,
-                            unselectedIconColor = TextTertiary,
-                            unselectedTextColor = TextTertiary,
-                            indicatorColor = AccentCyan.copy(alpha = 0.1f)
-                        )
-                    )
-                }
-            }
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Screen.Home.route) {
-                HomeScreen(
-                    userProfile = userProfile,
-                    dailyMissions = dailyMissions,
-                    streakMultiplier = streakMultiplier,
-                    onMissionClick = { mission ->
-                        navController.navigate(Screen.MissionDetail.createRoute(mission.id))
+                if (currentCrash != null) {
+                    ErrorScreen(currentCrash) {
+                        crashInfo = null
+                        recreate()
                     }
-                )
-            }
-            composable(Screen.Ranking.route) {
-                RankingScreen(
-                    globalRanking = globalRanking,
-                    friendsRanking = friendsRanking,
-                    myUserId = userProfile.id
-                )
-            }
-            composable(Screen.Friends.route) {
-                FriendsScreen(
-                    friends = friends,
-                    myFriendCode = userProfile.friendCode,
-                    onAddFriend = { code -> viewModel.addFriend(code) },
-                    onChallenge = { }
-                )
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen(
-                    userProfile = userProfile,
-                    achievements = achievements,
-                    onLogout = { }
-                )
-            }
-            composable(Screen.MissionDetail.route) { backStackEntry ->
-                val missionId = backStackEntry.arguments?.getString("missionId") ?: return@composable
-                val mission = dailyMissions.find { it.id == missionId } ?: return@composable
-
-                MissionDetailScreen(
-                    mission = mission,
-                    streakMultiplier = streakMultiplier,
-                    onComplete = { completedMission ->
-                        viewModel.completeMission(completedMission)
-                    },
-                    onBack = { navController.popBackStack() }
-                )
+                } else {
+                    AppRootScreen()
+                }
             }
         }
     }
