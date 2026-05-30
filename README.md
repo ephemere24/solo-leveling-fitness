@@ -22,7 +22,7 @@ Inspirado en **Solo Leveling** y **One Punch Man**. Sin excusas. Solo resultados
 
 | Version | APK |
 |---------|-----|
-| v2.3 (ultima) | [Descargar](https://github.com/ephemere24/solo-leveling-fitness/releases/download/v2.3/solo-leveling-fitness-v2.3.apk) |
+| v2.4 (ultima) | [Descargar](https://github.com/ephemere24/solo-leveling-fitness/releases/download/v2.4/solo-leveling-fitness-v2.4.apk) |
 | Todas las versiones | [Releases](https://github.com/ephemere24/solo-leveling-fitness/releases) |
 
 **Instalacion:** Descarga el APK, habilita "Instalar desde origen desconocido" y abre. Al ser una APK debug necesitas desinstalar versiones anteriores antes de instalar.
