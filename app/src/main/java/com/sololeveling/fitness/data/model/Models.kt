@@ -58,42 +58,19 @@ enum class ExerciseType(
         get() = statGains.maxByOrNull { it.value }?.key ?: StatCategory.STRENGTH
 
     companion object {
-        /** 5 misiones diarias garantizando variedad de stats */
+        /** Las 9 misiones diarias en orden fijo */
         fun dailyMissionTypes(userLevel: Int = 1): List<ExerciseType> {
-            // Siempre incluir ejercicios que cubran todos los stats
-            val core = listOf(
-                ExerciseType.PUSHUPS,        // STR+END
-                ExerciseType.ABDOMINALS,     // STR+END+SPEED
-                ExerciseType.SQUATS,         // STR+END+FLEX
-                ExerciseType.STRETCHING,     // FLEX
-                ExerciseType.SPRINT_100M,    // SPEED
+            return listOf(
+                ExerciseType.PUSHUPS,       // 1. Flexiones
+                ExerciseType.ABDOMINALS,    // 2. Abdominales
+                ExerciseType.SQUATS,        // 3. Sentadillas
+                ExerciseType.PULLUPS,       // 4. Dominadas
+                ExerciseType.SPRINT_100M,   // 5. Sprint 100m
+                ExerciseType.RUNNING_3KM,   // 6. Carrera 3km
+                ExerciseType.LUNGES,        // 7. Zancadas
+                ExerciseType.STRETCHING,    // 8. Estiramientos
+                ExerciseType.JUMP_ROPE,     // 9. Saltar cuerda
             )
-
-            val pool = mutableListOf<ExerciseType>()
-            pool.add(ExerciseType.RUNNING_3KM)   // SPEED+END
-            pool.add(ExerciseType.LUNGES)        // STR+END+FLEX+SPEED
-            pool.add(ExerciseType.JUMP_ROPE)     // SPEED+END+STAMINA
-            pool.add(ExerciseType.PULLUPS)       // STR+END
-
-            // Nivel 10+: más variedad
-            if (userLevel >= 10) {
-                pool.add(ExerciseType.ABDOMINALS)
-                pool.add(ExerciseType.LUNGES)
-            }
-
-            // Nivel 20+: dominadas
-            if (userLevel >= 20) {
-                pool.add(ExerciseType.PULLUPS)
-            }
-
-            // Nivel 30+: todos disponibles, seleccionar 5 variados
-            if (userLevel >= 30) {
-                return entries.shuffled().distinctBy { it.primaryStat }.take(5)
-            }
-
-            // Para niveles bajos: mezclar core + pool random y sacar 5
-            val combined = (core + pool.shuffled().take(2)).distinct()
-            return if (combined.size > 5) combined.shuffled().take(5) else combined
         }
     }
 }
