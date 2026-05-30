@@ -253,12 +253,25 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun generateDailyMissions() {
+    private suspend fun generateDailyMissions() {
         val profile = _userProfile.value
-        _dailyMissions.value = GameEngine.generateDailyMissions(profile.level, profile.stats)
+        val completedToday = localRepo.getCompletedMissionTypesToday()
+        _dailyMissions.value = GameEngine.generateDailyMissions(profile.level, profile.stats).map { mission ->
+            if (mission.type.name in completedToday) {
+                mission.copy(
+                    completedCount = mission.targetCount,
+                    isCompleted = true,
+                    completedDate = System.currentTimeMillis()
+                )
+            } else {
+                mission
+            }
+        }
     }
 
     fun completeMission(mission: Mission) {
+        if (mission.isCompleted) return // Ya completada, no hacer nada
+
         viewModelScope.launch {
             val result = localRepo.completeMission(mission)
             val profile = localRepo.getUserProfile()
@@ -268,7 +281,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _dailyMissions.value = _dailyMissions.value.map {
                 if (it.id == mission.id) {
                     it.copy(
-                        completedCount = mission.completedCount,
+                        completedCount = mission.targetCount,
                         isCompleted = true,
                         completedDate = System.currentTimeMillis()
                     )
@@ -279,9 +292,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             pushLocalToCloud(profile)
 
             if (result.levelsGained > 0) {
-                _eventMessage.emit("🎉 ¡Has subido al Nivel ${result.newLevel}!")
+                _eventMessage.emit("Subiste al Nivel ${result.newLevel}!")
             } else {
-                _eventMessage.emit("⚔️ ¡Misión completada! +${result.earnedXP} XP")
+                _eventMessage.emit("Mision completada! +${result.earnedXP} XP")
             }
         }
     }

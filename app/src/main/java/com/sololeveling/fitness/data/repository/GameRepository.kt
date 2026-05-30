@@ -41,6 +41,10 @@ class GameRepository(private val context: Context) {
 
         val MISSIONS_DATE = longPreferencesKey("missions_date")
 
+        // Misiones completadas hoy (set de ExerciseType.name)
+        val COMPLETED_MISSIONS_TODAY = stringSetPreferencesKey("completed_missions_today")
+        val COMPLETED_MISSIONS_DATE = longPreferencesKey("completed_missions_date")
+
         // Friends local (stored as JSON strings)
         val FRIENDS_COUNT = intPreferencesKey("friends_count")
         val CHALLENGE_WINS = intPreferencesKey("challenge_wins")
@@ -178,9 +182,37 @@ class GameRepository(private val context: Context) {
             it[PrefsKeys.STAT_ENDURANCE] = newStats.endurance
             it[PrefsKeys.STAT_STAMINA] = newStats.stamina
             it[PrefsKeys.STAT_FLEXIBILITY] = newStats.flexibility
+
+            // Persistir misión completada hoy
+            val today = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_YEAR)
+            val savedDate = it[PrefsKeys.COMPLETED_MISSIONS_DATE] ?: 0L
+            val todayMillis = java.util.Calendar.getInstance().timeInMillis
+            if (savedDate.toLong() != today.toLong()) {
+                // Nuevo día, limpiar completadas anteriores
+                it[PrefsKeys.COMPLETED_MISSIONS_TODAY] = setOf(mission.type.name)
+                it[PrefsKeys.COMPLETED_MISSIONS_DATE] = today.toLong()
+            } else {
+                // Mismo día, añadir a las existentes
+                val current = it[PrefsKeys.COMPLETED_MISSIONS_TODAY] ?: emptySet()
+                it[PrefsKeys.COMPLETED_MISSIONS_TODAY] = current + mission.type.name
+            }
         }
 
         return result
+    }
+
+    /**
+     * Devuelve el conjunto de ExerciseType.name que ya se completaron hoy.
+     */
+    suspend fun getCompletedMissionTypesToday(): Set<String> {
+        val prefs = context.dataStore.data.first()
+        val savedDate = prefs[PrefsKeys.COMPLETED_MISSIONS_DATE] ?: 0L
+        val today = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_YEAR)
+        return if (savedDate.toLong() == today.toLong()) {
+            prefs[PrefsKeys.COMPLETED_MISSIONS_TODAY] ?: emptySet()
+        } else {
+            emptySet()
+        }
     }
 
     // ══════════════════════════════════════════
