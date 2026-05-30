@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.IconButtonDefaults
@@ -32,6 +33,7 @@ import com.sololeveling.fitness.util.GameEngine
 
 /**
  * Pantalla de detalle/ejecución de misión — Contador interactivo
+ * Auto-completa al llegar al máximo.
  */
 @Composable
 fun MissionDetailScreen(
@@ -44,10 +46,26 @@ fun MissionDetailScreen(
     var currentCount by remember { mutableIntStateOf(mission.completedCount) }
     var isCompleted by remember { mutableStateOf(mission.isCompleted) }
     var showCelebration by remember { mutableStateOf(false) }
+    var hasAutoCompleted by remember { mutableStateOf(false) }
 
     val target = mission.targetCount
     val progress = (currentCount.toFloat() / target).coerceIn(0f, 1f)
     val earnedXP = GameEngine.calculateMissionXP(mission, (streakMultiplier * 10).toInt().coerceAtLeast(1))
+
+    // Auto-completar al llegar al máximo
+    LaunchedEffect(currentCount) {
+        if (currentCount >= target && !isCompleted && !hasAutoCompleted) {
+            hasAutoCompleted = true
+            isCompleted = true
+            showCelebration = true
+            val completedMission = mission.copy(
+                completedCount = currentCount,
+                isCompleted = true,
+                completedDate = System.currentTimeMillis()
+            )
+            onComplete(completedMission)
+        }
+    }
 
     // Animación de pulso para el botón
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
@@ -84,11 +102,23 @@ fun MissionDetailScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Título misión
-            Text(
-                text = exerciseEmoji(mission.type),
-                fontSize = 64.sp
-            )
+            // Icono de la misión
+            val missionIcon = exerciseIcon(mission.type)
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(AccentCyan.copy(alpha = 0.1f))
+                    .border(2.dp, AccentCyan.copy(alpha = 0.4f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    missionIcon,
+                    contentDescription = null,
+                    tint = AccentCyan,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = mission.type.displayName,
@@ -120,7 +150,7 @@ fun MissionDetailScreen(
                     )
                     .border(
                         width = 3.dp,
-                        color = if (isCompleted) AccentGreen else AccentCyan,
+                        color = if (isCompleted) AccentNeonGreen else AccentCyan,
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -129,7 +159,7 @@ fun MissionDetailScreen(
                     Text(
                         text = "$currentCount",
                         style = MaterialTheme.typography.displayLarge,
-                        color = if (isCompleted) AccentGreen else TextPrimary,
+                        color = if (isCompleted) AccentNeonGreen else TextPrimary,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 56.sp
                     )
@@ -143,26 +173,16 @@ fun MissionDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Barra de progreso
-            Box(
+            // Barra de progreso elegante
+            LinearProgressIndicator(
+                progress = progress,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(XpBarBg)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(progress)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(AccentCyan, AccentPurple)
-                            )
-                        )
-                )
-            }
+                    .height(14.dp)
+                    .clip(RoundedCornerShape(7.dp)),
+                color = if (isCompleted) AccentNeonGreen else AccentCyan,
+                trackColor = XpBarBg
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -199,10 +219,10 @@ fun MissionDetailScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Botón completar
+                // Botón completar (manual, por si acaso)
                 Button(
                     onClick = {
-                        if (currentCount >= target) {
+                        if (currentCount >= target && !isCompleted) {
                             isCompleted = true
                             showCelebration = true
                             val completedMission = mission.copy(
@@ -218,12 +238,19 @@ fun MissionDetailScreen(
                         .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentCount >= target) AccentGreen else BgTertiary
+                        containerColor = if (currentCount >= target) AccentNeonGreen else BgTertiary
                     ),
-                    enabled = currentCount >= target
+                    enabled = currentCount >= target && !isCompleted
                 ) {
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = if (currentCount >= target) BgPrimary else TextTertiary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "⚔️ COMPLETAR MISIÓN",
+                        "COMPLETAR MISIÓN",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = if (currentCount >= target) BgPrimary else TextTertiary
@@ -234,18 +261,23 @@ fun MissionDetailScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = AccentGreen.copy(alpha = 0.1f))
+                    colors = CardDefaults.cardColors(containerColor = AccentNeonGreen.copy(alpha = 0.1f))
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("✅", fontSize = 48.sp)
+                        Icon(
+                            Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            tint = AccentNeonGreen,
+                            modifier = Modifier.size(48.dp)
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             "¡Misión Completada!",
                             style = MaterialTheme.typography.headlineMedium,
-                            color = AccentGreen,
+                            color = AccentNeonGreen,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -256,8 +288,9 @@ fun MissionDetailScreen(
                             fontWeight = FontWeight.Bold
                         )
                         if (streakMultiplier > 1.0) {
+                            val multStr = "%.1fx".format(streakMultiplier)
                             Text(
-                                "Multiplicador: ${"%.1fx".format(streakMultiplier)}",
+                                "Multiplicador: $multStr",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = TextSecondary
                             )
@@ -295,7 +328,12 @@ fun CelebrationOverlay(xp: Int, onDismiss: () -> Unit) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("⚔️", fontSize = 72.sp)
+            Icon(
+                Icons.Filled.EmojiEvents,
+                contentDescription = null,
+                tint = AccentGold,
+                modifier = Modifier.size(72.dp)
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "¡MISIÓN COMPLETADA!",

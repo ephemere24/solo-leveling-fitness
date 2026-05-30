@@ -4,23 +4,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.sololeveling.fitness.ui.theme.*
+import com.sololeveling.fitness.util.GameEngine
 
-/**
- * Pantalla de bienvenida / registro inicial
- */
 @Composable
 fun WelcomeScreen(
     onStart: (String) -> Unit,
@@ -31,12 +32,25 @@ fun WelcomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(BgPrimary, AccentPurple.copy(alpha = 0.1f), BgPrimary)
-                )
-            )
+            .background(BgPrimary)
     ) {
+        // Scanline effect overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Transparent,
+                            AccentCyan.copy(alpha = 0.03f),
+                            Color.Transparent,
+                            AccentCyan.copy(alpha = 0.03f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -44,36 +58,66 @@ fun WelcomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo / Título
-            Text("⚔️", fontSize = 80.sp)
-            Spacer(modifier = Modifier.height(16.dp))
+            // Logo
+            Icon(
+                Icons.Filled.Shield,
+                contentDescription = null,
+                tint = AccentCyan,
+                modifier = Modifier.size(72.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 "SOLO LEVELING",
                 style = MaterialTheme.typography.displayLarge,
                 color = AccentCyan,
                 fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 2.sp
+                letterSpacing = 4.sp
             )
             Text(
                 "FITNESS",
                 style = MaterialTheme.typography.displayMedium,
-                color = AccentPurple,
+                color = TextPrimary,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 8.sp
+                letterSpacing = 12.sp
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Neon line divider
+            Box(
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(2.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color.Transparent, AccentCyan, Color.Transparent)
+                        )
+                    )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
-                "Entrena como un Cazador.\nSube de nivel. Domina tu cuerpo.",
-                style = MaterialTheme.typography.bodyLarge,
+                "// Entrena como un Cazador",
+                style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary,
-                textAlign = TextAlign.Center
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+            )
+            Text(
+                "// Sube de nivel. Domina tu cuerpo.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Input nombre
+            // Input card
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, AccentCyan.copy(alpha = 0.3f), RoundedCornerShape(20.dp)),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = BgCard)
             ) {
@@ -82,15 +126,16 @@ fun WelcomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "¿Cuál es tu nombre, Cazador?",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = TextPrimary
+                        ">> ¿NOMBRE DEL CAZADOR?",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = AccentCyan,
+                        letterSpacing = 2.sp
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Tu nombre de cazador...") },
+                        placeholder = { Text("Ingresa tu nombre...", color = TextTertiary) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = TextPrimary,
@@ -112,10 +157,11 @@ fun WelcomeScreen(
                         enabled = name.isNotBlank()
                     ) {
                         Text(
-                            "🎮 EMPEZAR AVENTURA",
+                            "INICIAR",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
-                            color = BgPrimary
+                            color = BgPrimary,
+                            letterSpacing = 2.sp
                         )
                     }
                 }
@@ -123,24 +169,28 @@ fun WelcomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Features preview
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                FeatureHint("⚔️", "Misiones")
-                FeatureHint("📊", "Stats")
-                FeatureHint("🏆", "Ranking")
-                FeatureHint("🔥", "Rachas")
+                FeatureHint(Icons.Filled.Assignment, "MISIONES")
+                FeatureHint(Icons.Filled.BarChart, "STATS")
+                FeatureHint(Icons.Filled.Leaderboard, "RANKING")
+                FeatureHint(Icons.Filled.LocalFireDepartment, "RACHAS")
             }
         }
     }
 }
 
 @Composable
-fun FeatureHint(emoji: String, label: String) {
+fun FeatureHint(icon: ImageVector, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(emoji, fontSize = 24.sp)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+        Icon(icon, contentDescription = null, tint = AccentCyan, modifier = Modifier.size(24.dp))
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = TextTertiary,
+            letterSpacing = 1.sp
+        )
     }
 }

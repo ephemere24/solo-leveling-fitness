@@ -1,6 +1,7 @@
 package com.sololeveling.fitness.ui.screens
 
-import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,9 +29,6 @@ import com.sololeveling.fitness.data.model.*
 import com.sololeveling.fitness.ui.theme.*
 import com.sololeveling.fitness.util.GameEngine
 
-/**
- * Pantalla Home — Panel principal del cazador con misiones diarias
- */
 @Composable
 fun HomeScreen(
     userProfile: UserProfile,
@@ -44,36 +45,38 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
     ) {
-        // ═══ HEADER: Nivel y Rango ═══
-        item {
-            HunterHeaderCard(userProfile, streakMultiplier)
-        }
-
-        // ═══ BARRA DE XP ═══
-        item {
-            XPProgressBar(userProfile)
-        }
-
-        // ═══ MISIONES DIARIAS ═══
+        item { HunterHeaderCard(userProfile, streakMultiplier) }
+        item { XPProgressBar(userProfile) }
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Filled.Assignment,
+                        contentDescription = null,
+                        tint = AccentCyan,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Text(
+                        "// MISIONES",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = AccentCyan,
+                        letterSpacing = 2.sp
+                    )
+                }
                 Text(
-                    "⚔️ Misiones Diarias",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = TextPrimary
-                )
-                Text(
-                    "${dailyMissions.count { it.isCompleted }}/${dailyMissions.size}",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = if (dailyMissions.all { it.isCompleted }) AccentGreen else AccentCyan
+                    "[${dailyMissions.count { it.isCompleted }}/${dailyMissions.size}]",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (dailyMissions.all { it.isCompleted }) AccentNeonGreen else TextSecondary
                 )
             }
         }
-
         itemsIndexed(dailyMissions) { _, mission ->
             MissionCard(
                 mission = mission,
@@ -81,11 +84,7 @@ fun HomeScreen(
                 onClick = { onMissionClick(mission) }
             )
         }
-
-        // ═══ RESUMEN STATS ═══
-        item {
-            StatsMiniBar(userProfile.stats)
-        }
+        item { StatsMiniBar(userProfile.stats) }
     }
 }
 
@@ -93,26 +92,14 @@ fun HomeScreen(
 fun HunterHeaderCard(profile: UserProfile, multiplier: Double) {
     val rankColor = try {
         Color(android.graphics.Color.parseColor(profile.rank.colorHex))
-    } catch (_: Exception) { AccentPurple }
+    } catch (_: Exception) { AccentCyan }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.horizontalGradient(
-                    listOf(
-                        BgCard,
-                        rankColor.copy(alpha = 0.15f),
-                        BgCard
-                    )
-                )
-            )
-            .border(
-                width = 1.dp,
-                color = rankColor.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(20.dp)
-            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(BgCard)
+            .border(1.dp, rankColor.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
         Column {
@@ -123,13 +110,14 @@ fun HunterHeaderCard(profile: UserProfile, multiplier: Double) {
             ) {
                 Column {
                     Text(
-                        text = profile.name,
+                        text = profile.name.uppercase(),
                         style = MaterialTheme.typography.headlineLarge,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        letterSpacing = 1.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = profile.hunterTitle,
+                        text = "NV.${profile.level}",
                         style = MaterialTheme.typography.titleMedium,
                         color = rankColor,
                         fontWeight = FontWeight.Bold
@@ -139,32 +127,38 @@ fun HunterHeaderCard(profile: UserProfile, multiplier: Double) {
                     Text(
                         text = "NIVEL",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextTertiary
+                        color = TextTertiary,
+                        letterSpacing = 2.sp
                     )
                     Text(
                         text = "${profile.level}",
                         style = MaterialTheme.typography.displayLarge,
-                        color = rankColor,
+                        color = AccentCyan,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 40.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Streak & multiplier
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(rankColor.copy(alpha = 0.3f))
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 StreakBadge(profile.currentStreak, multiplier)
-                StatPillar("🏆", "Misiones", "${profile.missionsCompleted}")
-                StatPillar(
-                    "⭐", "Total XP",
-                    formatXP(profile.totalXP)
-                )
-                StatPillar("📅", "Racha Max", "${profile.longestStreak}d")
+                StatPillar("MISIONES", "${profile.missionsCompleted}")
+                StatPillar("XP_TOTAL", formatXP(profile.totalXP))
+                StatPillar("RACHA_MAX", "${profile.longestStreak}d")
             }
         }
     }
@@ -173,46 +167,79 @@ fun HunterHeaderCard(profile: UserProfile, multiplier: Double) {
 @Composable
 fun StreakBadge(streak: Int, multiplier: Double) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Filled.LocalFireDepartment,
+                contentDescription = null,
+                tint = if (streak > 0) AccentNeonGreen else TextTertiary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "$streak",
+                style = MaterialTheme.typography.titleLarge,
+                color = if (streak > 0) AccentNeonGreen else TextTertiary,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Text(
-            text = "🔥 $streak",
-            style = MaterialTheme.typography.titleLarge,
-            color = if (streak > 0) AccentOrange else TextTertiary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "${multiplier.coerceAtMost(99.0).let { "%.1fx".format(it) }}",
-            style = MaterialTheme.typography.labelMedium,
-            color = if (streak > 7) AccentGreen else TextSecondary
+            text = "x${multiplier.coerceAtMost(99.0).let { "%.1f".format(it) }}",
+            style = MaterialTheme.typography.labelSmall,
+            color = if (streak > 7) AccentNeonGreen else TextTertiary,
+            letterSpacing = 1.sp
         )
     }
 }
 
 @Composable
-fun StatPillar(icon: String, label: String, value: String) {
+fun StatPillar(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = icon, fontSize = 18.sp)
-        Text(text = value, style = MaterialTheme.typography.titleMedium, color = TextPrimary)
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            color = TextPrimary,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = TextTertiary,
+            letterSpacing = 1.sp
+        )
     }
 }
 
 @Composable
 fun XPProgressBar(profile: UserProfile) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = profile.xpProgress,
+        animationSpec = tween(durationMillis = 800),
+        label = "xpProgress"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(BgCard)
+            .border(1.dp, AccentCyan.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Nivel ${profile.level}", style = MaterialTheme.typography.labelLarge, color = AccentCyan)
             Text(
-                "Nivel ${profile.level + 1}",
-                style = MaterialTheme.typography.labelMedium,
+                "NV.${profile.level}",
+                style = MaterialTheme.typography.labelLarge,
+                color = AccentCyan,
+                letterSpacing = 1.sp
+            )
+            Text(
+                "NV.${profile.level + 1}",
+                style = MaterialTheme.typography.labelSmall,
                 color = TextTertiary
             )
         }
@@ -220,18 +247,18 @@ fun XPProgressBar(profile: UserProfile) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(12.dp)
-                .clip(RoundedCornerShape(6.dp))
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp))
                 .background(XpBarBg)
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(profile.xpProgress)
+                    .fillMaxWidth(animatedProgress)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(RoundedCornerShape(5.dp))
                     .background(
                         Brush.horizontalGradient(
-                            listOf(AccentCyan, AccentPurple)
+                            listOf(AccentCyan, AccentNeonGreen)
                         )
                     )
             )
@@ -252,14 +279,15 @@ fun MissionCard(
     streakMultiplier: Double,
     onClick: () -> Unit
 ) {
-    val rankColor = try {
-        Color(android.graphics.Color.parseColor(HunterRank.forLevel(mission.baseXP / 10 + 1).colorHex))
-    } catch (_: Exception) { AccentBlue }
+    val borderColor = if (mission.isCompleted) AccentNeonGreen.copy(alpha = 0.5f) else AccentCyan.copy(alpha = 0.2f)
+    val iconVec = exerciseIcon(mission.type)
 
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (mission.isCompleted) BgTertiary else BgCard
         )
@@ -271,73 +299,78 @@ fun MissionCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Icono de tipo
+            // Mission type icon
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .background(
-                        if (mission.isCompleted) AccentGreen.copy(alpha = 0.15f)
-                        else rankColor.copy(alpha = 0.15f)
+                        if (mission.isCompleted) AccentNeonGreen.copy(alpha = 0.15f)
+                        else AccentCyan.copy(alpha = 0.15f)
+                    )
+                    .border(
+                        1.dp,
+                        if (mission.isCompleted) AccentNeonGreen.copy(alpha = 0.5f) else AccentCyan.copy(alpha = 0.3f),
+                        CircleShape
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = exerciseEmoji(mission.type),
-                    fontSize = 24.sp
+                Icon(
+                    iconVec,
+                    contentDescription = mission.type.displayName,
+                    tint = if (mission.isCompleted) AccentNeonGreen else AccentCyan,
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
-            // Info
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = mission.type.displayName,
+                        text = mission.type.displayName.uppercase(),
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        letterSpacing = 1.sp
                     )
                     if (mission.isCompleted) {
-                        Text("✅", fontSize = 20.sp)
+                        Icon(
+                            Icons.Filled.CheckCircle,
+                            contentDescription = "Completada",
+                            tint = AccentNeonGreen,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${mission.completedCount}/${mission.targetCount} repeticiones",
+                    text = "${mission.completedCount}/${mission.targetCount} reps",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
                 if (!mission.isCompleted) {
                     Spacer(modifier = Modifier.height(6.dp))
-                    Row(
+                    LinearProgressIndicator(
+                        progress = mission.progressPercent,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(4.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(XpBarBg)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(mission.progressPercent)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(rankColor)
-                        )
-                    }
+                            .clip(RoundedCornerShape(2.dp)),
+                        color = AccentCyan,
+                        trackColor = XpBarBg
+                    )
                 }
             }
 
-            // XP reward
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = "+${GameEngine.calculateMissionXP(mission, (streakMultiplier * 10).toInt().coerceAtLeast(1))}",
                     style = MaterialTheme.typography.titleMedium,
-                    color = AccentGold,
+                    color = AccentNeonGreen,
                     fontWeight = FontWeight.Bold
                 )
-                Text("XP", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text("XP", style = MaterialTheme.typography.labelSmall, color = TextTertiary, letterSpacing = 2.sp)
             }
         }
     }
@@ -346,56 +379,81 @@ fun MissionCard(
 @Composable
 fun StatsMiniBar(stats: PlayerStats) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, AccentCyan.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = BgCard)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                "📊 Estadísticas",
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.BarChart,
+                    contentDescription = null,
+                    tint = AccentCyan,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    "// STATS",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AccentCyan,
+                    letterSpacing = 2.sp
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatMiniItem("💪", "FUE", stats.strength, AccentRed)
-                StatMiniItem("⚡", "VEL", stats.speed, AccentCyan)
-                StatMiniItem("🏃", "RES", stats.endurance, AccentGreen)
-                StatMiniItem("🔥", "AGU", stats.stamina, AccentOrange)
-                StatMiniItem("🧘", "FLE", stats.flexibility, AccentPurple)
+                StatMiniItem("STR", stats.strength, AccentRed, Icons.Filled.FitnessCenter)
+                StatMiniItem("VEL", stats.speed, AccentCyan, Icons.Filled.FlashOn)
+                StatMiniItem("RES", stats.endurance, AccentNeonGreen, Icons.Filled.DirectionsRun)
+                StatMiniItem("AGU", stats.stamina, AccentOrange, Icons.Filled.LocalFireDepartment)
+                StatMiniItem("FLE", stats.flexibility, AccentPurple, Icons.Filled.SelfImprovement)
             }
         }
     }
 }
 
 @Composable
-fun StatMiniItem(icon: String, label: String, value: Int, color: Color) {
+fun StatMiniItem(label: String, value: Int, color: Color, icon: ImageVector) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = icon, fontSize = 16.sp)
+        Icon(
+            icon,
+            contentDescription = label,
+            tint = color,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "$value",
             style = MaterialTheme.typography.titleMedium,
             color = color,
             fontWeight = FontWeight.Bold
         )
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = TextTertiary,
+            letterSpacing = 1.sp
+        )
     }
 }
 
-fun exerciseEmoji(type: ExerciseType): String = when (type) {
-    ExerciseType.PUSHUPS -> "💪"
-    ExerciseType.SQUATS -> "🦵"
-    ExerciseType.PULLUPS -> "🏋️"
-    ExerciseType.ABDOMINALS -> "🔥"
-    ExerciseType.PLANK -> "🧱"
-    ExerciseType.BURPEES -> "💥"
-    ExerciseType.RUNNING -> "🏃"
-    ExerciseType.MOUNTAIN_CLIMBERS -> "⛰️"
-    ExerciseType.JUMPING_JACKS -> "⭐"
-    ExerciseType.STRETCHING -> "🧘"
+fun exerciseIcon(type: ExerciseType): ImageVector = when (type) {
+    ExerciseType.PUSHUPS -> Icons.Filled.FitnessCenter
+    ExerciseType.SQUATS -> Icons.Filled.FitnessCenter
+    ExerciseType.PULLUPS -> Icons.Filled.FitnessCenter
+    ExerciseType.ABDOMINALS -> Icons.Filled.SportsMartialArts
+    ExerciseType.PLANK -> Icons.Filled.Rectangle
+    ExerciseType.BURPEES -> Icons.Filled.DirectionsRun
+    ExerciseType.RUNNING -> Icons.Filled.DirectionsRun
+    ExerciseType.MOUNTAIN_CLIMBERS -> Icons.Filled.Terrain
+    ExerciseType.JUMPING_JACKS -> Icons.Filled.AccessibilityNew
+    ExerciseType.STRETCHING -> Icons.Filled.SelfImprovement
 }
 
 fun formatXP(xp: Int): String = when {

@@ -80,15 +80,15 @@ class GameRepository(private val context: Context) {
     //  INICIALIZACIÓN
     // ══════════════════════════════════════════
 
-    suspend fun initializeUser(name: String, userId: String? = null): UserProfile {
+    suspend fun initializeUser(name: String, userId: String? = null, friendCode: String? = null): UserProfile {
         val id = userId ?: java.util.UUID.randomUUID().toString()
-        val friendCode = GameEngine.generateFriendCode()
+        val code = friendCode ?: GameEngine.generateFriendCode()
         val now = System.currentTimeMillis()
 
         updatePrefs { prefs ->
             prefs[PrefsKeys.USER_ID] = id
             prefs[PrefsKeys.USER_NAME] = name
-            prefs[PrefsKeys.FRIEND_CODE] = friendCode
+            prefs[PrefsKeys.FRIEND_CODE] = code
             prefs[PrefsKeys.LAST_ACTIVE] = now
             prefs[PrefsKeys.STREAK_PROTECTION] = 1
         }

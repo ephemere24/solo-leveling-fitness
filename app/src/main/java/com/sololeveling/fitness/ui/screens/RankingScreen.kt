@@ -1,17 +1,15 @@
 package com.sololeveling.fitness.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.sololeveling.fitness.data.model.*
 import com.sololeveling.fitness.ui.theme.*
 
-/**
- * Pantalla de Ranking — Global y de Amigos
- */
 @Composable
 fun RankingScreen(
     globalRanking: List<RankingEntry>,
@@ -35,14 +30,12 @@ fun RankingScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("🏆 Global", "👥 Amigos")
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(BgPrimary)
     ) {
-        // Tabs
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = BgSecondary,
@@ -55,13 +48,13 @@ fun RankingScreen(
                             .wrapContentSize(Alignment.BottomStart)
                             .width(tabPositions[selectedTab].width)
                             .offset(x = tabPositions[selectedTab].left)
-                            .height(3.dp)
+                            .height(2.dp)
                             .background(AccentCyan)
                     )
                 }
             }
         ) {
-            tabs.forEachIndexed { index, title ->
+            listOf("GLOBAL", "AMIGOS").forEachIndexed { index, title ->
                 Tab(
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
@@ -69,7 +62,8 @@ fun RankingScreen(
                         Text(
                             title,
                             style = MaterialTheme.typography.labelLarge,
-                            color = if (selectedTab == index) AccentCyan else TextSecondary
+                            color = if (selectedTab == index) AccentCyan else TextSecondary,
+                            letterSpacing = 2.sp
                         )
                     }
                 )
@@ -86,7 +80,7 @@ fun RankingScreen(
 @Composable
 fun GlobalRankingList(ranking: List<RankingEntry>, myUserId: String) {
     if (ranking.isEmpty()) {
-        EmptyRankingState("Cargando ranking global…")
+        EmptyRankingState("Cargando ranking...", "Conectando con el servidor...")
         return
     }
 
@@ -95,25 +89,19 @@ fun GlobalRankingList(ranking: List<RankingEntry>, myUserId: String) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Top 3 podium
         if (ranking.size >= 3) {
             item { PodiumView(ranking.take(3)) }
         }
-
         itemsIndexed(ranking) { index, entry ->
-            RankingItem(
-                position = index + 1,
-                entry = entry,
-                isMe = entry.userId == myUserId
-            )
+            RankingItem(index + 1, entry, entry.userId == myUserId)
         }
     }
 }
 
 @Composable
 fun FriendsRankingList(ranking: List<RankingEntry>, myUserId: String) {
-    if (ranking.isEmpty()) {
-        EmptyRankingState("¡Añade amigos para competir!")
+    if (ranking.size <= 1) {
+        EmptyRankingState("Sin amigos aún", "Añade amigos con su código para competir")
         return
     }
 
@@ -123,11 +111,7 @@ fun FriendsRankingList(ranking: List<RankingEntry>, myUserId: String) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         itemsIndexed(ranking) { index, entry ->
-            RankingItem(
-                position = index + 1,
-                entry = entry,
-                isMe = entry.userId == myUserId
-            )
+            RankingItem(index + 1, entry, entry.userId == myUserId)
         }
     }
 }
@@ -141,16 +125,9 @@ fun PodiumView(top3: List<RankingEntry>) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Bottom
     ) {
-        // 2nd place
-        if (top3.size > 1) {
-            PodiumPlace(top3[1], 2, 80.dp, AccentCyan)
-        }
-        // 1st place
-        PodiumPlace(top3[0], 1, 100.dp, AccentGold)
-        // 3rd place
-        if (top3.size > 2) {
-            PodiumPlace(top3[2], 3, 60.dp, AccentOrange)
-        }
+        if (top3.size > 1) PodiumPlace(top3[1], 2, 80.dp, AccentCyan)
+        PodiumPlace(top3[0], 1, 100.dp, AccentNeonGreen)
+        if (top3.size > 2) PodiumPlace(top3[2], 3, 60.dp, AccentOrange)
     }
 }
 
@@ -161,12 +138,9 @@ fun PodiumPlace(entry: RankingEntry, place: Int, height: androidx.compose.ui.uni
         modifier = Modifier.width(100.dp)
     ) {
         Text(
-            text = when (place) {
-                1 -> "👑"
-                2 -> "🥈"
-                else -> "🥉"
-            },
-            fontSize = 28.sp
+            text = when (place) { 1 -> "♛"; 2 -> "◆"; 3 -> "◇"; else -> "·" },
+            fontSize = 28.sp,
+            color = color
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
@@ -177,8 +151,8 @@ fun PodiumPlace(entry: RankingEntry, place: Int, height: androidx.compose.ui.uni
             maxLines = 1
         )
         Text(
-            text = "Nv.${entry.level}",
-            style = MaterialTheme.typography.labelMedium,
+            text = "NV.${entry.level}",
+            style = MaterialTheme.typography.labelSmall,
             color = color
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -187,8 +161,8 @@ fun PodiumPlace(entry: RankingEntry, place: Int, height: androidx.compose.ui.uni
                 .width(80.dp)
                 .height(height)
                 .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                .background(color.copy(alpha = 0.2f))
-                .border(1.dp, color.copy(alpha = 0.5f), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                .border(1.dp, color.copy(alpha = 0.3f), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                .background(color.copy(alpha = 0.05f)),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -202,19 +176,13 @@ fun PodiumPlace(entry: RankingEntry, place: Int, height: androidx.compose.ui.uni
 }
 
 @Composable
-fun RankingItem(
-    position: Int,
-    entry: RankingEntry,
-    isMe: Boolean
-) {
+fun RankingItem(position: Int, entry: RankingEntry, isMe: Boolean) {
     val rankColor = try {
         Color(android.graphics.Color.parseColor(entry.rank.colorHex))
     } catch (_: Exception) { TextSecondary }
 
-    val bgColor = when {
-        isMe -> AccentCyan.copy(alpha = 0.1f)
-        position <= 3 -> AccentGold.copy(alpha = 0.05f)
-        else -> BgCard
+    val accentColor = when (position) {
+        1 -> AccentNeonGreen; 2 -> AccentCyan; 3 -> AccentOrange; else -> TextSecondary
     }
 
     Card(
@@ -225,7 +193,9 @@ fun RankingItem(
                 else Modifier
             ),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isMe) AccentCyan.copy(alpha = 0.05f) else BgCard
+        )
     ) {
         Row(
             modifier = Modifier
@@ -234,26 +204,19 @@ fun RankingItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Position
             Text(
                 text = "#$position",
                 style = MaterialTheme.typography.titleLarge,
-                color = when (position) {
-                    1 -> AccentGold
-                    2 -> AccentCyan
-                    3 -> AccentOrange
-                    else -> TextTertiary
-                },
+                color = accentColor,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.width(40.dp)
             )
-
-            // Rank badge
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(rankColor.copy(alpha = 0.2f)),
+                    .background(rankColor.copy(alpha = 0.15f))
+                    .border(1.dp, rankColor.copy(alpha = 0.4f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -263,11 +226,9 @@ fun RankingItem(
                     fontWeight = FontWeight.Bold
                 )
             }
-
-            // Name & info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (isMe) "${entry.name} (Tú)" else entry.name,
+                    text = if (isMe) "${entry.name} [TÚ]" else entry.name,
                     style = MaterialTheme.typography.titleMedium,
                     color = if (isMe) AccentCyan else TextPrimary,
                     fontWeight = if (isMe) FontWeight.Bold else FontWeight.Normal
@@ -278,34 +239,39 @@ fun RankingItem(
                     color = TextTertiary
                 )
             }
-
-            // XP
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = formatXP(entry.totalXP),
                     style = MaterialTheme.typography.titleMedium,
-                    color = AccentGold,
+                    color = AccentNeonGreen,
                     fontWeight = FontWeight.Bold
                 )
-                Text("XP", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text("XP", style = MaterialTheme.typography.labelSmall, color = TextTertiary, letterSpacing = 2.sp)
             }
         }
     }
 }
 
 @Composable
-fun EmptyRankingState(message: String) {
+fun EmptyRankingState(title: String, subtitle: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("🏆", fontSize = 48.sp)
+            Icon(Icons.Filled.TravelExplore, contentDescription = null, tint = AccentCyan.copy(alpha = 0.5f), modifier = Modifier.size(48.dp))
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = message,
-                style = MaterialTheme.typography.bodyLarge,
+                text = title,
+                style = MaterialTheme.typography.headlineMedium,
                 color = TextSecondary,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextTertiary,
                 textAlign = TextAlign.Center
             )
         }

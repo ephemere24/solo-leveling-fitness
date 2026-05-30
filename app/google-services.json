@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "YOUR_PROJECT_NUMBER",
-    "project_id": "solo-leveling-fitness",
-    "storage_bucket": "solo-leveling-fitness.appspot.com"
+    "project_number": "1087077285457",
+    "project_id": "solo-leveling-fitness-899ff",
+    "storage_bucket": "solo-leveling-fitness-899ff.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "YOUR_APP_ID",
+        "mobilesdk_app_id": "1:1087077285457:android:82979c30539f808b3f0270",
         "android_client_info": {
           "package_name": "com.sololeveling.fitness"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "YOUR_API_KEY"
+          "current_key": "AIzaSyAdggsFyPTlSyk_TCY8oOzfSdPlLDKzicg"
         }
       ],
       "services": {

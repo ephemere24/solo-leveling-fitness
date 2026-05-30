@@ -22,9 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.sololeveling.fitness.data.model.*
 import com.sololeveling.fitness.ui.theme.*
 
-/**
- * Pantalla de Amigos — Gestionar amigos y enviar retos
- */
 @Composable
 fun FriendsScreen(
     friends: List<Friendship>,
@@ -42,9 +39,10 @@ fun FriendsScreen(
             .background(BgPrimary)
             .padding(16.dp)
     ) {
-        // Mi código
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, AccentCyan.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BgCard)
         ) {
@@ -52,18 +50,23 @@ fun FriendsScreen(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Tu Código de Amigo", style = MaterialTheme.typography.titleMedium, color = TextSecondary)
+                Text(
+                    "TU CÓDIGO",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = AccentCyan,
+                    letterSpacing = 3.sp
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = myFriendCode,
+                    text = myFriendCode.ifEmpty { "---------" },
                     style = MaterialTheme.typography.displayMedium,
-                    color = AccentCyan,
+                    color = TextPrimary,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 4.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "Comparte este código para que te añadan",
+                    "Comparte para que te añadan",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextTertiary
                 )
@@ -72,24 +75,26 @@ fun FriendsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón añadir
         Button(
             onClick = { showAddDialog = true },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, AccentCyan.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AccentCyan.copy(alpha = 0.2f))
+            colors = ButtonDefaults.buttonColors(containerColor = BgCard)
         ) {
             Icon(Icons.Default.PersonAdd, contentDescription = null, tint = AccentCyan)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Añadir Amigo", color = AccentCyan, fontWeight = FontWeight.Bold)
+            Text("AÑADIR AMIGO", color = AccentCyan, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            "👥 Amigos (${friends.size})",
+            "AMIGOS [${friends.size}]",
             style = MaterialTheme.typography.headlineMedium,
-            color = TextPrimary
+            color = TextPrimary,
+            letterSpacing = 2.sp
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -100,10 +105,10 @@ fun FriendsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("👥", fontSize = 48.sp)
+                    Text("◇", fontSize = 48.sp, color = TextTertiary)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "¡Añade amigos para competir!",
+                        "Añade amigos para competir",
                         style = MaterialTheme.typography.bodyLarge,
                         color = TextSecondary,
                         textAlign = TextAlign.Center
@@ -116,21 +121,17 @@ fun FriendsScreen(
                 contentPadding = PaddingValues(bottom = 100.dp)
             ) {
                 items(friends) { friend ->
-                    FriendCard(
-                        friend = friend,
-                        onChallenge = { onChallenge(friend.friendId) }
-                    )
+                    FriendCard(friend = friend, onChallenge = { onChallenge(friend.friendId) })
                 }
             }
         }
     }
 
-    // Dialog añadir amigo
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             containerColor = BgCard,
-            title = { Text("Añadir Amigo", color = TextPrimary) },
+            title = { Text("AÑADIR AMIGO", color = AccentCyan, letterSpacing = 2.sp) },
             text = {
                 Column {
                     Text("Introduce el código de tu amigo:", color = TextSecondary)
@@ -162,7 +163,7 @@ fun FriendsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
                 ) {
-                    Text("Añadir", color = BgPrimary)
+                    Text("AÑADIR", color = BgPrimary)
                 }
             },
             dismissButton = {
@@ -178,10 +179,12 @@ fun FriendsScreen(
 fun FriendCard(friend: Friendship, onChallenge: () -> Unit) {
     val rankColor = try {
         Color(android.graphics.Color.parseColor(HunterRank.forLevel(friend.friendLevel).colorHex))
-    } catch (_: Exception) { AccentBlue }
+    } catch (_: Exception) { AccentCyan }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, rankColor.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = BgCard)
     ) {
@@ -192,12 +195,12 @@ fun FriendCard(friend: Friendship, onChallenge: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Avatar
             Box(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(rankColor.copy(alpha = 0.2f)),
+                    .background(rankColor.copy(alpha = 0.15f))
+                    .border(1.dp, rankColor.copy(alpha = 0.4f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -207,8 +210,6 @@ fun FriendCard(friend: Friendship, onChallenge: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
             }
-
-            // Info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = friend.friendName,
@@ -221,16 +222,12 @@ fun FriendCard(friend: Friendship, onChallenge: () -> Unit) {
                     color = TextTertiary
                 )
             }
-
-            // Challenge button
-            FilledTonalButton(
+            OutlinedButton(
                 onClick = onChallenge,
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = AccentRed.copy(alpha = 0.2f)
-                )
+                border = androidx.compose.foundation.BorderStroke(1.dp, AccentRed.copy(alpha = 0.5f))
             ) {
-                Text("⚔️", fontSize = 16.sp)
+                Icon(Icons.Filled.FlashOn, contentDescription = null, tint = AccentRed, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Retar", color = AccentRed, fontSize = 12.sp)
             }

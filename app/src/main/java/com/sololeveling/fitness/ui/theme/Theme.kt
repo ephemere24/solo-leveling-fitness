@@ -8,102 +8,105 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// ═══ COLORES ═══
-val BgPrimary = Color(0xFF0D0D10)
-val BgSecondary = Color(0xFF1A1A24)
-val BgTertiary = Color(0xFF242436)
-val BgCard = Color(0xFF1E1E2E)
+// ═══ COLORES CYBERPUNK OLED ═══
+// Fondos — negro puro para OLED
+val BgPrimary = Color(0xFF000000)      // Negro puro OLED
+val BgSecondary = Color(0xFF0A0A0A)    // Casi negro
+val BgTertiary = Color(0xFF111111)     // Gris muy oscuro
+val BgCard = Color(0xFF0D0D0D)         // Negro con pelín de gris
 
-val AccentBlue = Color(0xFF4A90D9)
-val AccentPurple = Color(0xFF7B2FBE)
-val AccentCyan = Color(0xFF00D4FF)
-val AccentGold = Color(0xFFFFD700)
-val AccentRed = Color(0xFFFF3333)
-val AccentGreen = Color(0xFF39FF14)
-val AccentOrange = Color(0xFFFF6B00)
+// Acentos neÓN
+val AccentCyan = Color(0xFF00FFFF)       // Cian neón
+val AccentMagenta = Color(0xFF00FF88)    // Verde neón (estilo Matrix/cyberpunk)
+val AccentNeonGreen = Color(0xFF39FF14)  // Verde neón puro
+val AccentGold = Color(0xFFFFFF00)       // Amarillo neón
+val AccentRed = Color(0xFFFF0044)        // Rojo neón
+val AccentOrange = Color(0xFFFF6600)     // Naranja neón
+val AccentPurple = Color(0xFFBF00FF)     // Púrpura neón
 
-val TextPrimary = Color(0xFFFFFFFF)
-val TextSecondary = Color(0xFFB0B0C8)
-val TextTertiary = Color(0xFF6A6A80)
+// Texto
+val TextPrimary = Color(0xFFFFFFFF)      // Blanco puro
+val TextSecondary = Color(0xFFAAAAAA)    // Gris claro
+val TextTertiary = Color(0xFF555555)     // Gris medio
 
-val RankE = Color(0xFF6B7280)
-val RankD = Color(0xFF3B82F6)
-val RankC = Color(0xFF22C55E)
-val RankB = Color(0xFFF59E0B)
-val RankA = Color(0xFFF97316)
-val RankS = Color(0xFFEF4444)
-val RankNational = Color(0xFFD946EF)
-val RankMonarch = Color(0xFF8B5CF6)
+// Rangos
+val RankE = Color(0xFF666666)
+val RankD = Color(0xFF00FFFF)      // Cian
+val RankC = Color(0xFF39FF14)      // Verde neón
+val RankB = Color(0xFFFFFF00)      // Amarillo
+val RankA = Color(0xFFFF6600)      // Naranja
+val RankS = Color(0xFFFF0044)      // Rojo neón
+val RankNational = Color(0xFFBF00FF) // Púrpura
+val RankMonarch = Color(0xFFFFFFFF)  // Blanco (supremo)
 
-val XpBarBg = Color(0xFF2A2A3A)
+// Misc
+val XpBarBg = Color(0xFF1A1A1A)
 val StatusActive = Color(0xFF39FF14)
-val StatusWarning = Color(0xFFF59E0B)
-val StatusDanger = Color(0xFFEF4444)
-
-val OverlayDark = Color(0xCC000000)
-val GlowCyan = Color(0x3300D4FF)
-val GlowPurple = Color(0x337B2FBE)
+val StatusWarning = Color(0xFFFFFF00)
+val StatusDanger = Color(0xFFFF0044)
+val GlowCyan = Color(0x4000FFFF)    // Cian con glow
+val GlowMagenta = Color(0x40FF00FF) // Magenta con glow
 
 // ═══ TIPOGRAFÍA ═══
-val DisplayFont = FontFamily.Default
+val DisplayFont = FontFamily.Monospace  // Estilo terminal/cyberpunk
 
 val AppTypography = Typography(
     displayLarge = TextStyle(
         fontSize = 32.sp, fontWeight = FontWeight.ExtraBold,
-        color = TextPrimary, letterSpacing = (-0.5).sp
+        color = TextPrimary, letterSpacing = 1.sp, fontFamily = DisplayFont
     ),
     displayMedium = TextStyle(
         fontSize = 24.sp, fontWeight = FontWeight.Bold,
-        color = TextPrimary
+        color = TextPrimary, letterSpacing = 0.5.sp, fontFamily = DisplayFont
     ),
     headlineLarge = TextStyle(
         fontSize = 20.sp, fontWeight = FontWeight.Bold,
-        color = TextPrimary
+        color = TextPrimary, letterSpacing = 0.5.sp, fontFamily = DisplayFont
     ),
     headlineMedium = TextStyle(
         fontSize = 18.sp, fontWeight = FontWeight.SemiBold,
-        color = TextPrimary
+        color = TextPrimary, fontFamily = DisplayFont
     ),
     titleLarge = TextStyle(
         fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-        color = TextPrimary
+        color = TextPrimary, fontFamily = DisplayFont
     ),
     titleMedium = TextStyle(
         fontSize = 14.sp, fontWeight = FontWeight.Medium,
-        color = TextPrimary
+        color = TextPrimary, fontFamily = DisplayFont
     ),
     bodyLarge = TextStyle(
         fontSize = 16.sp, fontWeight = FontWeight.Normal,
-        color = TextSecondary
+        color = TextSecondary, fontFamily = DisplayFont
     ),
     bodyMedium = TextStyle(
         fontSize = 14.sp, fontWeight = FontWeight.Normal,
-        color = TextSecondary
+        color = TextSecondary, fontFamily = DisplayFont
     ),
     bodySmall = TextStyle(
         fontSize = 12.sp, fontWeight = FontWeight.Normal,
-        color = TextTertiary
+        color = TextTertiary, fontFamily = DisplayFont
     ),
     labelLarge = TextStyle(
         fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-        color = TextPrimary
+        color = TextPrimary, fontFamily = DisplayFont
     ),
     labelMedium = TextStyle(
         fontSize = 12.sp, fontWeight = FontWeight.Medium,
-        color = TextSecondary
+        color = TextSecondary, fontFamily = DisplayFont
     ),
     labelSmall = TextStyle(
         fontSize = 10.sp, fontWeight = FontWeight.Medium,
-        color = TextTertiary
+        color = TextTertiary, fontFamily = DisplayFont
     )
 )
 
-// ═══ TEMA OSCURO SOLO LEVELING ═══
-private val SoloLevelingColorScheme = darkColorScheme(
+// ═══ TEMA OSCURO CYBERPUNK OLED ═══
+private val CyberpunkColorScheme = darkColorScheme(
     primary = AccentCyan,
     onPrimary = BgPrimary,
-    secondary = AccentPurple,
-    onSecondary = TextPrimary,
+    secondary = AccentNeonGreen,
+    onSecondary = BgPrimary,
     tertiary = AccentGold,
     background = BgPrimary,
     onBackground = TextPrimary,
@@ -120,7 +123,7 @@ private val SoloLevelingColorScheme = darkColorScheme(
 @Composable
 fun SoloLevelingTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = SoloLevelingColorScheme,
+        colorScheme = CyberpunkColorScheme,
         typography = AppTypography,
         content = content
     )

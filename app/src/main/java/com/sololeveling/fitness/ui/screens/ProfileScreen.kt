@@ -9,6 +9,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.StarHalf
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,23 +47,17 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
     ) {
-        // ═══ HEADER PERFIL ═══
-        item {
-            ProfileHeader(userProfile)
-        }
+        item { ProfileHeader(userProfile) }
+        item { DetailedStatsCard(userProfile.stats) }
 
-        // ═══ STATS DETALLADOS ═══
         item {
-            DetailedStatsCard(userProfile.stats)
-        }
-
-        // ═══ LOGROS ═══
-        item {
-            Text(
-                "🏅 Logros",
-                style = MaterialTheme.typography.headlineMedium,
-                color = TextPrimary
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = AccentGold, modifier = Modifier.size(20.dp))
+                Text("Logros", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
+            }
         }
 
         items(achievements.chunked(2)) { rowAchievements ->
@@ -78,10 +77,7 @@ fun ProfileScreen(
             }
         }
 
-        // ═══ AJUSTES ═══
-        item {
-            SettingsSection(onLogout)
-        }
+        item { SettingsSection(onLogout) }
     }
 }
 
@@ -110,7 +106,6 @@ fun ProfileHeader(profile: UserProfile) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Avatar
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -141,15 +136,14 @@ fun ProfileHeader(profile: UserProfile) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Quick stats row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 QuickStat("Nivel", "${profile.level}", AccentCyan)
                 QuickStat("Misiones", "${profile.missionsCompleted}", AccentGold)
-                QuickStat("Racha", "${profile.currentStreak}🔥", AccentOrange)
-                QuickStat("Total XP", formatXP(profile.totalXP), AccentGreen)
+                QuickStat("Racha", "${profile.currentStreak}", AccentOrange)
+                QuickStat("Total XP", formatXP(profile.totalXP), AccentNeonGreen)
             }
         }
     }
@@ -180,25 +174,27 @@ fun DetailedStatsCard(stats: PlayerStats) {
         colors = CardDefaults.cardColors(containerColor = BgCard)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                "📊 Estadísticas de Cazador",
-                style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.BarChart, contentDescription = null, tint = AccentCyan, modifier = Modifier.size(20.dp))
+                Text("Estadísticas de Cazador", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
-            StatBar("💪 Fuerza", stats.strength, AccentRed, 200)
+            StatBar("Fuerza", stats.strength, AccentRed, 200, Icons.Filled.FitnessCenter)
             Spacer(modifier = Modifier.height(12.dp))
-            StatBar("⚡ Velocidad", stats.speed, AccentCyan, 200)
+            StatBar("Velocidad", stats.speed, AccentCyan, 200, Icons.Filled.FlashOn)
             Spacer(modifier = Modifier.height(12.dp))
-            StatBar("🏃 Resistencia", stats.endurance, AccentGreen, 200)
+            StatBar("Resistencia", stats.endurance, AccentNeonGreen, 200, Icons.Filled.DirectionsRun)
             Spacer(modifier = Modifier.height(12.dp))
-            StatBar("🔥 Aguante", stats.stamina, AccentOrange, 200)
+            StatBar("Aguante", stats.stamina, AccentOrange, 200, Icons.Filled.LocalFireDepartment)
             Spacer(modifier = Modifier.height(12.dp))
-            StatBar("🧘 Flexibilidad", stats.flexibility, AccentPurple, 200)
+            StatBar("Flexibilidad", stats.flexibility, AccentPurple, 200, Icons.Filled.SelfImprovement)
 
             Spacer(modifier = Modifier.height(16.dp))
-                    Divider(color = BgTertiary)
+            Divider(color = BgTertiary)
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
@@ -218,14 +214,21 @@ fun DetailedStatsCard(stats: PlayerStats) {
 }
 
 @Composable
-fun StatBar(label: String, value: Int, color: Color, maxValue: Int) {
+fun StatBar(label: String, value: Int, color: Color, maxValue: Int, icon: ImageVector) {
     val progress = (value.toFloat() / maxValue).coerceIn(0f, 1f)
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+                Text(label, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+            }
             Text(
                 "$value",
                 style = MaterialTheme.typography.titleMedium,
@@ -234,25 +237,15 @@ fun StatBar(label: String, value: Int, color: Color, maxValue: Int) {
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Box(
+        LinearProgressIndicator(
+            progress = progress,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(XpBarBg)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(progress)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(color.copy(alpha = 0.7f), color)
-                        )
-                    )
-            )
-        }
+                .clip(RoundedCornerShape(4.dp)),
+            color = color,
+            trackColor = XpBarBg
+        )
     }
 }
 
@@ -283,10 +276,21 @@ fun AchievementCard(achievement: Achievement, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = if (achievement.isUnlocked) achievement.icon else "🔒",
-                fontSize = 28.sp
-            )
+            if (achievement.isUnlocked) {
+                Icon(
+                    achievementIcon(achievement.id),
+                    contentDescription = null,
+                    tint = AccentGold,
+                    modifier = Modifier.size(32.dp)
+                )
+            } else {
+                Icon(
+                    Icons.Filled.Lock,
+                    contentDescription = null,
+                    tint = TextTertiary,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = achievement.title,
@@ -323,6 +327,28 @@ fun AchievementCard(achievement: Achievement, modifier: Modifier = Modifier) {
     }
 }
 
+fun achievementIcon(id: String): ImageVector = when (id) {
+    "first_mission" -> Icons.Filled.PlayArrow
+    "missions_10" -> Icons.Filled.SportsScore
+    "missions_50" -> Icons.Filled.Star
+    "missions_100" -> Icons.Filled.StarHalf
+    "missions_500" -> Icons.Filled.StarBorder
+    "missions_1000" -> Icons.Filled.WorkspacePremium
+    "streak_3", "streak_7" -> Icons.Filled.LocalFireDepartment
+    "streak_30" -> Icons.Filled.Whatshot
+    "streak_100" -> Icons.Filled.Bolt
+    "level_10" -> Icons.Filled.TrendingUp
+    "level_25" -> Icons.Filled.TrendingUp
+    "level_50" -> Icons.Filled.RocketLaunch
+    "level_75" -> Icons.Filled.MilitaryTech
+    "level_100" -> Icons.Filled.WorkspacePremium
+    "stat_total_50" -> Icons.Filled.FitnessCenter
+    "stat_total_200" -> Icons.Filled.Diamond
+    "friends_5" -> Icons.Filled.Group
+    "challenge_win_10" -> Icons.Filled.EmojiEvents
+    else -> Icons.Filled.EmojiEvents
+}
+
 @Composable
 fun SettingsSection(onLogout: () -> Unit) {
     Card(
@@ -331,29 +357,37 @@ fun SettingsSection(onLogout: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = BgCard)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("⚙️ Ajustes", style = MaterialTheme.typography.titleMedium, color = TextPrimary)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.Settings, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                Text("Ajustes", style = MaterialTheme.typography.titleMedium, color = TextPrimary)
+            }
             Spacer(modifier = Modifier.height(12.dp))
 
-            SettingItem("🔔 Notificaciones", "Recordatorios diarios") {}
-            SettingItem("🌙 Modo oscuro", "Activado") {}
-            SettingItem("📤 Compartir perfil", "Invita a amigos") {}
+            SettingItem("Notificaciones", "Recordatorios diarios", Icons.Filled.Notifications) {}
+            SettingItem("Modo oscuro", "Activado", Icons.Filled.DarkMode) {}
+            SettingItem("Compartir perfil", "Invita a amigos", Icons.Filled.Share) {}
 
             Spacer(modifier = Modifier.height(8.dp))
-                    Divider(color = BgTertiary)
+            Divider(color = BgTertiary)
             Spacer(modifier = Modifier.height(8.dp))
 
             TextButton(
                 onClick = onLogout,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("🚪 Cerrar Sesión", color = AccentRed)
+                Icon(Icons.Filled.Logout, contentDescription = null, tint = AccentRed, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cerrar Sesión", color = AccentRed)
             }
         }
     }
 }
 
 @Composable
-fun SettingItem(title: String, subtitle: String, onClick: () -> Unit) {
+fun SettingItem(title: String, subtitle: String, icon: ImageVector, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -363,9 +397,15 @@ fun SettingItem(title: String, subtitle: String, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text(title, style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
-            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icon, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+            Column {
+                Text(title, style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
+                Text(subtitle, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+            }
         }
         Icon(
             Icons.Default.ChevronRight,

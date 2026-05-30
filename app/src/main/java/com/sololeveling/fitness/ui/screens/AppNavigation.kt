@@ -1,10 +1,13 @@
 package com.sololeveling.fitness.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,11 +18,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.sololeveling.fitness.viewmodel.GameViewModel
 import com.sololeveling.fitness.ui.theme.*
-import com.sololeveling.fitness.data.model.*
 
-/**
- * Error screen — shown when the app crashes
- */
 @Composable
 fun ErrorScreen(error: String, onRetry: () -> Unit) {
     val scroll = rememberScrollState()
@@ -32,11 +31,11 @@ fun ErrorScreen(error: String, onRetry: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-        Text("💀", fontSize = 56.sp)
+        Icon(Icons.Filled.ErrorOutline, contentDescription = null, tint = AccentRed, modifier = Modifier.size(56.dp))
         Spacer(modifier = Modifier.height(12.dp))
         Text("FATAL ERROR", style = MaterialTheme.typography.headlineLarge, color = AccentRed)
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Copia esto y envíamelo por favor:", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+        Text("Copia esto y envíamelo:", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
         Spacer(modifier = Modifier.height(12.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -55,14 +54,11 @@ fun ErrorScreen(error: String, onRetry: () -> Unit) {
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
         ) {
-            Text("🔄 Reintentar", color = BgPrimary)
+            Text("REINTENTAR", color = BgPrimary)
         }
     }
 }
 
-/**
- * Main app root — all navigation goes through here
- */
 @Composable
 fun AppRootScreen() {
     val viewModel: GameViewModel = viewModel()
@@ -73,15 +69,7 @@ fun AppRootScreen() {
     val friendsRanking by viewModel.friendsRanking.collectAsState()
     val friends by viewModel.friends.collectAsState()
     val achievements by viewModel.achievements.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
     val showWelcome by viewModel.showWelcome.collectAsState()
-
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = AccentCyan)
-        }
-        return
-    }
 
     if (showWelcome) {
         WelcomeScreen(onStart = { name -> viewModel.createProfile(name) })
@@ -101,11 +89,11 @@ fun AppRootScreen() {
 }
 
 sealed class NavScreen(val route: String, val label: String) {
-    data object Home : NavScreen("home", "Inicio")
-    data object Ranking : NavScreen("ranking", "Ranking")
-    data object Friends : NavScreen("friends", "Amigos")
-    data object Profile : NavScreen("profile", "Perfil")
-    data object MissionDetail : NavScreen("mission/{missionId}", "Misión") {
+    data object Home : NavScreen("home", "INICIO")
+    data object Ranking : NavScreen("ranking", "RANKING")
+    data object Friends : NavScreen("friends", "AMIGOS")
+    data object Profile : NavScreen("profile", "PERFIL")
+    data object MissionDetail : NavScreen("mission/{missionId}", "MISION") {
         fun createRoute(id: String) = "mission/$id"
     }
 }
@@ -123,18 +111,24 @@ fun SlfNavigation(
 ) {
     val navController = rememberNavController()
     val bottomItems = listOf(NavScreen.Home, NavScreen.Ranking, NavScreen.Friends, NavScreen.Profile)
-    val icons = listOf("🏠", "🏆", "👥", "👤")
+    val labels = listOf("INICIO", "RANK", "AMIGOS", "PERFIL")
 
     Scaffold(
         containerColor = BgPrimary,
         bottomBar = {
-            NavigationBar(containerColor = BgSecondary) {
+            NavigationBar(
+                containerColor = BgSecondary,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = AccentCyan.copy(alpha = 0.15f)
+                )
+            ) {
                 val current by navController.currentBackStackEntryAsState()
                 val route = current?.destination?.route
                 bottomItems.forEachIndexed { i, screen ->
                     NavigationBarItem(
-                        icon = { Text(icons[i], fontSize = 20.sp) },
-                        label = { Text(screen.label, style = MaterialTheme.typography.labelSmall) },
+                        icon = { Text(labels[i].take(1), fontSize = 18.sp, color = if (route == screen.route) AccentCyan else TextTertiary) },
+                        label = { Text(labels[i], style = MaterialTheme.typography.labelSmall, color = if (route == screen.route) AccentCyan else TextTertiary) },
                         selected = route == screen.route,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -148,7 +142,7 @@ fun SlfNavigation(
                             selectedTextColor = AccentCyan,
                             unselectedIconColor = TextTertiary,
                             unselectedTextColor = TextTertiary,
-                            indicatorColor = AccentCyan.copy(alpha = 0.1f)
+                            indicatorColor = AccentCyan.copy(alpha = 0.08f)
                         )
                     )
                 }
