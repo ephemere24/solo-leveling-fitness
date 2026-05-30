@@ -270,9 +270,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun completeMission(mission: Mission) {
-        if (mission.isCompleted) return // Ya completada, no hacer nada
-
         viewModelScope.launch {
+            // Verificar si ya se completo hoy via DataStore (persistente)
+            val completedToday = localRepo.getCompletedMissionTypesToday()
+            if (mission.type.name in completedToday) return@launch
+
             val result = localRepo.completeMission(mission)
             val profile = localRepo.getUserProfile()
             _userProfile.value = profile
