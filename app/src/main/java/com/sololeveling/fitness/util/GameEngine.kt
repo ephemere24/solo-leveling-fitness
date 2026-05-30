@@ -66,12 +66,7 @@ object GameEngine {
         stats: PlayerStats,
         dayOfWeek: Int = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK)
     ): List<Mission> {
-        val baseTypes = ExerciseType.dailyMissionTypes().toMutableList()
-
-        // A partir de nivel 10 se añade variedad
-        if (userLevel >= 10) baseTypes.add(ExerciseType.BURPEES)
-        if (userLevel >= 20) baseTypes.add(ExerciseType.RUNNING)
-        if (userLevel >= 30) baseTypes.add(ExerciseType.MOUNTAIN_CLIMBERS)
+        val baseTypes = ExerciseType.dailyMissionTypes(userLevel).toMutableList()
 
         // Seleccionar 5 misiones variadas
         val selectedTypes = if (baseTypes.size >= 5) {

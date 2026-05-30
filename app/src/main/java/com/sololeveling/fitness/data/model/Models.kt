@@ -21,9 +21,39 @@ enum class ExerciseType(val displayName: String, val statCategory: StatCategory)
     STRETCHING("Estiramientos", StatCategory.FLEXIBILITY);
 
     companion object {
-        fun dailyMissionTypes(): List<ExerciseType> = listOf(
-            PUSHUPS, SQUATS, PULLUPS, ABDOMINALS, PLANK
-        )
+        /** 5 misiones diarias garantizando variedad de stats:
+         *  - Siempre 1 STR, 1 STAMINA, 1 ENDURANCE
+         *  - 2 aleatorios de SPEED/FLEXIBILITY/extra
+         *  - A partir de nivel 10+ se añaden más tipos de endurance y velocidad
+         *  - A partir de nivel 20+ se añade flexibilidad
+         */
+        fun dailyMissionTypes(userLevel: Int = 1): List<ExerciseType> {
+            val always = listOf(
+                ExerciseType.PUSHUPS,      // STR
+                ExerciseType.PLANK,        // STAMINA
+                ExerciseType.BURPEES,      // ENDURANCE
+            )
+            val pool = mutableListOf<ExerciseType>()
+            pool.add(ExerciseType.MOUNTAIN_CLIMBERS)  // SPEED
+            pool.add(ExerciseType.RUNNING)            // ENDURANCE alt
+            pool.add(ExerciseType.STRETCHING)         // FLEXIBILITY
+
+            // Nivel 10+: más velocidad
+            if (userLevel >= 10) pool.add(ExerciseType.JUMPING_JACKS)
+
+            // Nivel 20+: más fuerza y stamina alternativas
+            if (userLevel >= 20) {
+                pool.add(ExerciseType.SQUATS)
+                pool.add(ExerciseType.ABDOMINALS)
+            }
+
+            // Nivel 30+: dominadas
+            if (userLevel >= 30) pool.add(ExerciseType.PULLUPS)
+
+            // Mezclar pool y coger 2
+            val pick2 = if (pool.size >= 2) pool.shuffled().take(2) else pool
+            return always + pick2
+        }
     }
 }
 
