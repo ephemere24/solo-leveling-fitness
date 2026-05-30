@@ -448,11 +448,10 @@ fun exerciseIcon(type: ExerciseType): ImageVector = when (type) {
     ExerciseType.SQUATS -> Icons.Filled.FitnessCenter
     ExerciseType.PULLUPS -> Icons.Filled.FitnessCenter
     ExerciseType.ABDOMINALS -> Icons.Filled.SportsMartialArts
-    ExerciseType.PLANK -> Icons.Filled.Rectangle
-    ExerciseType.BURPEES -> Icons.Filled.DirectionsRun
-    ExerciseType.RUNNING -> Icons.Filled.DirectionsRun
-    ExerciseType.MOUNTAIN_CLIMBERS -> Icons.Filled.Terrain
-    ExerciseType.JUMPING_JACKS -> Icons.Filled.AccessibilityNew
+    ExerciseType.SPRINT_100M -> Icons.Filled.DirectionsRun
+    ExerciseType.RUNNING_3KM -> Icons.Filled.DirectionsRun
+    ExerciseType.LUNGES -> Icons.Filled.DirectionsRun
+    ExerciseType.JUMP_ROPE -> Icons.Filled.FitnessCenter
     ExerciseType.STRETCHING -> Icons.Filled.SelfImprovement
 }
 

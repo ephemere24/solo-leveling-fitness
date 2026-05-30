@@ -6,53 +6,94 @@ import com.sololeveling.fitness.util.GameEngine.xpForLevelFast
 import java.util.UUID
 
 /**
- * Tipos de ejercicio / misión disponibles
+ * Tipos de ejercicio / misión disponibles.
+ * Cada uno define cuántos puntos aporta a cada stat al completarse.
  */
-enum class ExerciseType(val displayName: String, val statCategory: StatCategory) {
-    PUSHUPS("Flexiones", StatCategory.STRENGTH),
-    SQUATS("Sentadillas", StatCategory.STRENGTH),
-    PULLUPS("Dominadas", StatCategory.STRENGTH),
-    ABDOMINALS("Abdominales", StatCategory.STAMINA),
-    PLANK("Plancha", StatCategory.STAMINA),
-    BURPEES("Burpees", StatCategory.ENDURANCE),
-    RUNNING("Carrera", StatCategory.ENDURANCE),
-    MOUNTAIN_CLIMBERS("Escaladores", StatCategory.SPEED),
-    JUMPING_JACKS("Jumping Jacks", StatCategory.SPEED),
-    STRETCHING("Estiramientos", StatCategory.FLEXIBILITY);
+enum class ExerciseType(
+    val displayName: String,
+    val statGains: Map<StatCategory, Int>
+) {
+    PUSHUPS("Flexiones", mapOf(
+        StatCategory.STRENGTH to 2,
+        StatCategory.ENDURANCE to 1
+    )),
+    ABDOMINALS("Abdominales", mapOf(
+        StatCategory.STRENGTH to 1,
+        StatCategory.ENDURANCE to 1,
+        StatCategory.SPEED to 1
+    )),
+    SQUATS("Sentadillas", mapOf(
+        StatCategory.STRENGTH to 2,
+        StatCategory.ENDURANCE to 1,
+        StatCategory.FLEXIBILITY to 1
+    )),
+    PULLUPS("Dominadas", mapOf(
+        StatCategory.STRENGTH to 3,
+        StatCategory.ENDURANCE to 1
+    )),
+    SPRINT_100M("Sprint 100m", mapOf(
+        StatCategory.SPEED to 3
+    )),
+    RUNNING_3KM("Carrera 3km", mapOf(
+        StatCategory.SPEED to 1,
+        StatCategory.ENDURANCE to 3
+    )),
+    LUNGES("Zancadas", mapOf(
+        StatCategory.STRENGTH to 1,
+        StatCategory.ENDURANCE to 1,
+        StatCategory.FLEXIBILITY to 1,
+        StatCategory.SPEED to 1
+    )),
+    JUMP_ROPE("Saltar cuerda 5min", mapOf(
+        StatCategory.SPEED to 1,
+        StatCategory.ENDURANCE to 2,
+        StatCategory.STAMINA to 2
+    )),
+    STRETCHING("Estiramientos 3min", mapOf(
+        StatCategory.FLEXIBILITY to 3
+    ));
+
+    /** Stat principal (el que más puntos aporta) para compatibilidad */
+    val primaryStat: StatCategory
+        get() = statGains.maxByOrNull { it.value }?.key ?: StatCategory.STRENGTH
 
     companion object {
-        /** 5 misiones diarias garantizando variedad de stats:
-         *  - Siempre 1 STR, 1 STAMINA, 1 ENDURANCE
-         *  - 2 aleatorios de SPEED/FLEXIBILITY/extra
-         *  - A partir de nivel 10+ se añaden más tipos de endurance y velocidad
-         *  - A partir de nivel 20+ se añade flexibilidad
-         */
+        /** 5 misiones diarias garantizando variedad de stats */
         fun dailyMissionTypes(userLevel: Int = 1): List<ExerciseType> {
-            val always = listOf(
-                ExerciseType.PUSHUPS,      // STR
-                ExerciseType.PLANK,        // STAMINA
-                ExerciseType.BURPEES,      // ENDURANCE
+            // Siempre incluir ejercicios que cubran todos los stats
+            val core = listOf(
+                ExerciseType.PUSHUPS,        // STR+END
+                ExerciseType.ABDOMINALS,     // STR+END+SPEED
+                ExerciseType.SQUATS,         // STR+END+FLEX
+                ExerciseType.STRETCHING,     // FLEX
+                ExerciseType.SPRINT_100M,    // SPEED
             )
+
             val pool = mutableListOf<ExerciseType>()
-            pool.add(ExerciseType.MOUNTAIN_CLIMBERS)  // SPEED
-            pool.add(ExerciseType.RUNNING)            // ENDURANCE alt
-            pool.add(ExerciseType.STRETCHING)         // FLEXIBILITY
+            pool.add(ExerciseType.RUNNING_3KM)   // SPEED+END
+            pool.add(ExerciseType.LUNGES)        // STR+END+FLEX+SPEED
+            pool.add(ExerciseType.JUMP_ROPE)     // SPEED+END+STAMINA
+            pool.add(ExerciseType.PULLUPS)       // STR+END
 
-            // Nivel 10+: más velocidad
-            if (userLevel >= 10) pool.add(ExerciseType.JUMPING_JACKS)
-
-            // Nivel 20+: más fuerza y stamina alternativas
-            if (userLevel >= 20) {
-                pool.add(ExerciseType.SQUATS)
+            // Nivel 10+: más variedad
+            if (userLevel >= 10) {
                 pool.add(ExerciseType.ABDOMINALS)
+                pool.add(ExerciseType.LUNGES)
             }
 
-            // Nivel 30+: dominadas
-            if (userLevel >= 30) pool.add(ExerciseType.PULLUPS)
+            // Nivel 20+: dominadas
+            if (userLevel >= 20) {
+                pool.add(ExerciseType.PULLUPS)
+            }
 
-            // Mezclar pool y coger 2
-            val pick2 = if (pool.size >= 2) pool.shuffled().take(2) else pool
-            return always + pick2
+            // Nivel 30+: todos disponibles, seleccionar 5 variados
+            if (userLevel >= 30) {
+                return entries.shuffled().distinctBy { it.primaryStat }.take(5)
+            }
+
+            // Para niveles bajos: mezclar core + pool random y sacar 5
+            val combined = (core + pool.shuffled().take(2)).distinct()
+            return if (combined.size > 5) combined.shuffled().take(5) else combined
         }
     }
 }
@@ -60,12 +101,12 @@ enum class ExerciseType(val displayName: String, val statCategory: StatCategory)
 /**
  * Categorías de estadísticas que van subiendo
  */
-enum class StatCategory(val displayName: String, val icon: String) {
-    STRENGTH("Fuerza", "💪"),
-    SPEED("Velocidad", "⚡"),
-    ENDURANCE("Resistencia", "🏃"),
-    STAMINA("Aguante", "🔥"),
-    FLEXIBILITY("Flexibilidad", "🧘");
+enum class StatCategory(val displayName: String) {
+    STRENGTH("Fuerza"),
+    SPEED("Velocidad"),
+    ENDURANCE("Resistencia"),
+    STAMINA("Aguante"),
+    FLEXIBILITY("Flexibilidad");
 }
 
 /**
@@ -98,8 +139,8 @@ enum class HunterRank(
 data class Mission(
     val id: String = UUID.randomUUID().toString(),
     val type: ExerciseType,
-    val targetCount: Int,          // repeticiones objetivo
-    val baseXP: Int,               // XP base
+    val targetCount: Int,
+    val baseXP: Int,
     val completedCount: Int = 0,
     val isCompleted: Boolean = false,
     val assignedDate: Long = System.currentTimeMillis(),
@@ -138,6 +179,15 @@ data class PlayerStats(
         StatCategory.FLEXIBILITY -> copy(flexibility = flexibility + amount)
     }
 
+    /** Aplica múltiples ganancias de stats de golpe */
+    fun applyGains(gains: Map<StatCategory, Int>): PlayerStats {
+        var result = this
+        for ((category, amount) in gains) {
+            result = result.increment(category, amount)
+        }
+        return result
+    }
+
     val total: Int get() = strength + speed + endurance + stamina + flexibility
 }
 
@@ -149,8 +199,8 @@ data class UserProfile(
     val name: String = "Cazador",
     val friendCode: String = "",
     val level: Int = 1,
-    val xp: Int = 0,                    // XP en el nivel actual
-    val totalXP: Int = 0,               // XP total acumulado
+    val xp: Int = 0,
+    val totalXP: Int = 0,
     val stats: PlayerStats = PlayerStats(),
     val missionsCompleted: Int = 0,
     val daysActive: Int = 0,
@@ -163,14 +213,12 @@ data class UserProfile(
 ) {
     val rank: HunterRank get() = HunterRank.forLevel(level)
 
-    // XP del siguiente nivel (cuánto necesitas ESTE nivel)
     val xpForNextLevel: Int
         get() {
             val neededThisLevel = xpForLevelFast(level + 1) - xpForLevelFast(level)
             return neededThisLevel.coerceAtLeast(100)
         }
 
-    // XP acumulado necesario para el nivel actual
     private val xpAtCurrentLevel: Int
         get() = xpForLevelFast(level)
 
@@ -194,9 +242,6 @@ data class UserProfile(
         }
 }
 
-/**
- * Entrada de ranking
- */
 data class RankingEntry(
     val userId: String,
     val name: String,
@@ -207,9 +252,6 @@ data class RankingEntry(
     val currentStreak: Int = 0
 )
 
-/**
- * Relación de amistad
- */
 data class Friendship(
     val id: String = UUID.randomUUID().toString(),
     val userId: String,
@@ -224,9 +266,6 @@ enum class FriendStatus {
     PENDING, ACCEPTED, BLOCKED
 }
 
-/**
- * Reto entre amigos
- */
 data class Challenge(
     val id: String = UUID.randomUUID().toString(),
     val fromUserId: String,
@@ -245,9 +284,6 @@ enum class ChallengeStatus {
     ACTIVE, COMPLETED, EXPIRED
 }
 
-/**
- * Logro / Achievement
- */
 data class Achievement(
     val id: String,
     val title: String,
@@ -262,9 +298,6 @@ data class Achievement(
         get() = (currentProgress.toFloat() / requirement).coerceIn(0f, 1f)
 }
 
-/**
- * Registro diario de actividad
- */
 data class DailyLog(
     val date: Long,
     val missionsCompleted: Int = 0,

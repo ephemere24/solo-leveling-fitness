@@ -128,7 +128,7 @@ fun MissionDetailScreen(
                 textAlign = TextAlign.Center
             )
             Text(
-                text = mission.type.statCategory.displayName,
+                text = mission.type.primaryStat.displayName,
                 style = MaterialTheme.typography.titleMedium,
                 color = AccentCyan
             )
